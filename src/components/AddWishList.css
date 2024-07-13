@@ -1,0 +1,16 @@
+.addWishListContent{
+    position: relative;
+    left: 334px;
+    height: 26px;
+}
+.addWishListButton{
+    border-radius: 120px !important;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+.addWishListIcon{
+    font-size: 54px;
+    padding: 3px;
+}
