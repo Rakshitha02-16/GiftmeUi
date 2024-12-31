@@ -11,11 +11,7 @@ import {
   IonCol,
   IonButton,
   IonIcon,
-  IonFab,
-  IonFabButton,
   IonModal,
-  IonCard,
-  IonCardContent,
   IonCardTitle,
   IonDatetime,
   IonSelect,
@@ -25,57 +21,42 @@ import {
   IonLabel,
   IonAlert,
   IonSpinner,
-  IonPopover,
-  IonList,
-  IonToast,
 } from "@ionic/react";
-import { ellipsisHorizontal } from "ionicons/icons";
-
-import { add, settingsOutline } from "ionicons/icons";
+import { settingsOutline } from "ionicons/icons";
+import { useHistory } from "react-router-dom";
 
 const ProfilePage: React.FC = () => {
   const [posts, setPosts] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalImage, setModalImage] = useState("");
   const [name] = useState("Nithya");
   const [highlights, setHighlights] = useState<any[]>([]);
   const [date, setDate] = useState<string | undefined>(undefined); // Date of state
   const [selectedEvent, setSelectedEvent] = useState<string | undefined>();
   const [selectedHighlight, setSelectedHighlight] = useState<any>(null); // Selected highlight for popup
   const [showAlert, setShowAlert] = useState(false);
-  const [alertMessage, setAlertMessage] = useState<string | undefined>(
-    undefined
-  );
+  const [alertMessage, setAlertMessage] = useState<string | undefined>(undefined);
   const [events, setEvents] = useState<any[]>([]); // Events state
   const [loading, setLoading] = useState(false); // Loading state for fetching events
-  const [showPopover, setShowPopover] = useState(false);
-  const [filteredEvents, setFilteredEvents] = useState<any[]>([]);
-
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-
   const [anniversaryItems, setAnniversaryItems] = useState([
     { id: 1, imgSrc: "https://via.placeholder.com/150" },
     { id: 2, imgSrc: "https://via.placeholder.com/150" },
   ]);
-
   const [birthdayItems, setBirthdayItems] = useState([
     { id: 3, imgSrc: "https://via.placeholder.com/150" },
     { id: 4, imgSrc: "https://via.placeholder.com/150" },
   ]);
-
   const [showToast, setShowToast] = useState(false);
 
   const history = useHistory();
-  const wishlist = useHistory();
 
   const navigateToWishList = () => {
-      history.push('/wishList');
-      setWishlistModal(true);
-    };
-  
+    history.push('/wishList');
+  };
+
   const handleOpenModal = () => {
     setIsModalOpen(true);
-  }
+  };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -93,7 +74,6 @@ const ProfilePage: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     const apiUrl = `https://localhost:7241/api/Event?Id=${id}`;
-
     try {
       const response = await fetch(apiUrl, {
         method: "DELETE",
@@ -104,9 +84,7 @@ const ProfilePage: React.FC = () => {
         setSelectedHighlight(null);
       } else {
         const errorData = await response.json();
-        setAlertMessage(
-          `Failed to delete item: ${errorData.message || "Unknown error"}`
-        );
+        setAlertMessage(`Failed to delete item: ${errorData.message || "Unknown error"}`);
         setShowAlert(true);
       }
     } catch (error) {
@@ -114,6 +92,16 @@ const ProfilePage: React.FC = () => {
       setAlertMessage("An error occurred while deleting the item.");
       setShowAlert(true);
     }
+  };
+
+  const handleSaveEvent = () => {
+    // Save event logic
+    console.log("Event saved");
+  };
+
+  const handleAdd = () => {
+    // Add event logic
+    console.log("Event added");
   };
 
   return (
@@ -170,7 +158,7 @@ const ProfilePage: React.FC = () => {
               <IonButton
                 expand="block"
                 color="dark"
-                onClick={() => setIsModalOpen(true)}
+                onClick={handleOpenModal}
               >
                 + Events
               </IonButton>
@@ -178,7 +166,7 @@ const ProfilePage: React.FC = () => {
           </IonRow>
         </IonGrid>
 
-        <IonModal isOpen={isModalOpen} onDidDismiss={closeModal}>
+        <IonModal isOpen={isModalOpen} onDidDismiss={handleCloseModal}>
           <IonContent>
             <IonGrid>
               <IonRow>
@@ -215,20 +203,9 @@ const ProfilePage: React.FC = () => {
                           </IonSelectOption>
                         ) : (
                           events
-                            .filter((event) => {
-                              console.log(
-                                "Filtering event:",
-                                event.title,
-                                "Selected:",
-                                selectedEvent
-                              );
-                              return event.title !== selectedEvent;
-                            })
+                            .filter((event) => event.title !== selectedEvent)
                             .map((event) => (
-                              <IonSelectOption
-                                key={event.id}
-                                value={event.title}
-                              >
+                              <IonSelectOption key={event.id} value={event.title}>
                                 {event.title}
                               </IonSelectOption>
                             ))
@@ -250,7 +227,7 @@ const ProfilePage: React.FC = () => {
                 >
                   Add
                 </IonButton>
-                <IonButton expand="block" color="medium" onClick={closeModal}>
+                <IonButton expand="block" color="medium" onClick={handleCloseModal}>
                   Cancel
                 </IonButton>
               </IonFooter>
@@ -341,6 +318,7 @@ const ProfilePage: React.FC = () => {
             </IonContent>
           </IonModal>
         )}
+
         <IonAlert
           isOpen={!!alertMessage}
           onDidDismiss={() => setAlertMessage(undefined)}
