@@ -1,0 +1,22 @@
+.profile-photo-container {
+  text-align: center;
+  margin: 30px 0px 100px 100px;
+ 
+}
+
+.profile-photo {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.ion-button{
+  width:50% ;
+  margin: 0px 90px;
+  margin-top: 20px;
+}
+.profile-page{
+  justify-content: center;
+  align-items: center;
+ text-align: center;
+}
