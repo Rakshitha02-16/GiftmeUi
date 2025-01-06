@@ -1,22 +1,13 @@
-.profile-photo-container {
-  text-align: center;
-  margin: 30px 0px 100px 100px;
- 
+.form-item {
+  display: block;
+  margin-bottom: 16px;
 }
 
-.profile-photo {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  object-fit: cover;
+.form-item .ion-label {
+  display: block;
+  margin-bottom: 8px; /* Adds spacing between label and input */
 }
-.ion-button{
-  width:50% ;
-  margin: 0px 90px;
-  margin-top: 20px;
-}
-.profile-page{
-  justify-content: center;
-  align-items: center;
- text-align: center;
+
+.form-item .ion-input, .form-item .ion-textarea {
+  width: 100%;
 }

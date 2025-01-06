@@ -1,114 +1,184 @@
+import React, { useState, useEffect } from "react";
 import {
-  IonButton,
-  IonContent,
-  IonHeader,
-  IonItem,
-  IonLabel,
   IonPage,
+  IonHeader,
+  IonToolbar,
   IonTitle,
+  IonContent,
   IonInput,
   IonTextarea,
+  IonButton,
   IonImg,
   IonAvatar,
+  IonItem,
+  IonLabel,
+  IonActionSheet,
 } from "@ionic/react";
-import React, { useState } from "react";
-import "./PersonalDetails.css"; // Ensure this file exists in the same folder as PersonalDetails.tsx
+import { useHistory } from "react-router-dom";
+import { createUser, updateUser, deleteProfilePic, fetchUser } from "../services/ProfileService";
+import { User } from "../interfaces/Models";
+import "../pages/PersonalDetails.css";
 
-const PersonalDetails: React.FC = () => {
-  const [profileImage, setProfileImage] = useState<string | null>(null);
-  const [firstName, setFirstName] = useState<string>("");
-  const [lastName, setLastName] = useState<string>("");
-  const [bio, setBio] = useState<string>("");
+const EditProfile: React.FC = () => {
+  const history = useHistory();
 
-  // Handle file selection
-  const handlePersonal = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => setProfileImage(reader.result as string);
-      reader.readAsDataURL(file);
+  const [userData, setUserData] = useState<User>({
+    id: 0,
+    name: "",
+    email: "",
+    bio: "",
+    phone: 0,
+    address: [],
+    profilePicture: "https://via.placeholder.com/150",
+  });
+
+  const [showActionSheet, setShowActionSheet] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch user data from the backend on component load
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const fetchedUser = await fetchUser(); // Fetch user data from API
+        setUserData(fetchedUser);
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Handle profile picture deletion
+  const handleProfilePicDelete = async () => {
+    try {
+      await deleteProfilePic();
+      setUserData((prev) => ({ ...prev, profilePicture: "" }));
+      setShowActionSheet(false);
+    } catch (error) {
+      console.error("Failed to delete profile picture:", error);
     }
   };
 
   // Handle form submission
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    console.log("Form submitted with details:");
-    console.log("First Name:", firstName);
-    console.log("Last Name:", lastName);
-    console.log("Bio:", bio);
-    console.log("Profile Image:", profileImage);
-    // Add your form submission logic here
+
+    try {
+      let updatedUser;
+      if (userData.id === 0) {
+        updatedUser = await createUser(userData); // Create new user
+      } else {
+        updatedUser = await updateUser(userData); // Update existing user
+      }
+
+      // Save updated user data to localStorage
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+
+      // Navigate to Tab3
+      history.push("/tab3");
+    } catch (error) {
+      console.error("Failed to save user:", error);
+    }
   };
 
+  // Handle profile picture change
+  const handleProfilePicChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setUserData((prev) => ({ ...prev, profilePicture: reader.result as string }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  if (loading) {
+    return <IonContent>Loading...</IonContent>;
+  }
+
   return (
-    <IonPage >
-      <IonHeader >
-        <IonTitle>Edit Personal Details</IonTitle>
+    <IonPage>
+      <IonHeader>
+        <IonToolbar>
+          <IonTitle>Edit Profile</IonTitle>
+        </IonToolbar>
       </IonHeader>
       <IonContent>
-      <IonItem>
-            <IonLabel position="stacked">Profile Photo</IonLabel>
-            <input
-              id="file-input"
-              type="file"
-              accept="image/*"
-              onChange={handlePersonal}
-              style={{ display: "none" }}
-            />
-          </IonItem>
-          
-
-          {/* Display the selected profile image as a round photo */}
-          {profileImage && (
-            <IonAvatar className="profile-photo-container">
-              <IonImg src={profileImage} alt="Profile" className="profile-photo" onClick={() => document.getElementById("file-input")?.click()} />
-            </IonAvatar>
-          )}
-          <IonButton
-            fill="clear"
-            color="dark"
-            onClick={() => document.getElementById("file-input")?.click()}
-          >
-            Edit Picture
-          </IonButton>
         <form onSubmit={handleSubmit}>
-          <IonItem>
-            <IonLabel position="stacked">First Name</IonLabel>
-            <IonInput
-              value={firstName}
-              placeholder="Enter your first name"
-              onIonChange={(e) => setFirstName(e.detail.value!)}
+          <div>
+            <IonAvatar onClick={() => setShowActionSheet(true)}>
+              <IonImg
+                src={userData.profilePicture || "https://via.placeholder.com/150"}
+                alt="Profile Picture"
+              />
+            </IonAvatar>
+
+            <IonActionSheet
+              isOpen={showActionSheet}
+              buttons={[
+                {
+                  text: "Choose from Library",
+                  handler: () => document.getElementById("profile-pic-input")?.click(),
+                },
+                {
+                  text: "Take Photo",
+                  handler: () => document.getElementById("profile-pic-input")?.click(),
+                },
+                {
+                  text: "Delete Current Picture",
+                  role: "destructive",
+                  handler: handleProfilePicDelete,
+                },
+                {
+                  text: "Cancel",
+                  role: "cancel",
+                  handler: () => setShowActionSheet(false),
+                },
+              ]}
+              onDidDismiss={() => setShowActionSheet(false)}
             />
-          </IonItem>
 
-          <IonItem>
-            <IonLabel position="stacked">Last Name</IonLabel>
-            <IonInput
-              value={lastName}
-              placeholder="Enter your last name"
-              onIonChange={(e) => setLastName(e.detail.value!)}
+            <input
+              type="file"
+              id="profile-pic-input"
+              style={{ display: "none" }}
+              onChange={handleProfilePicChange}
+              accept="image/*"
             />
-          </IonItem>
+          </div>
 
-          <IonItem>
-            <IonLabel position="stacked">Bio</IonLabel>
-            <IonTextarea
-              value={bio}
-              placeholder="Write a short bio about yourself or the company"
-              onIonChange={(e) => setBio(e.detail.value!)}
-            />
-          </IonItem>
+          <div>
+            <IonItem className="form-item">
+              <IonLabel position="stacked">Name</IonLabel>
+              <IonInput
+                value={userData.name}
+                onIonChange={(e) => setUserData({ ...userData, name: e.detail.value! })}
+                placeholder="Name"
+                required
+              />
+            </IonItem>
 
-         
+            <IonItem className="form-item">
+              <IonLabel position="stacked">Bio</IonLabel>
+              <IonTextarea
+                value={userData.bio}
+                onIonChange={(e) => setUserData({ ...userData, bio: e.detail.value! })}
+                placeholder="Bio"
+              />
+            </IonItem>
 
-          <IonButton type="submit" expand="block" className="ion-button" color="dark">
-            Save Details
-          </IonButton>
+            <IonButton type="submit" color="secondary">
+              Save
+            </IonButton>
+          </div>
         </form>
       </IonContent>
     </IonPage>
   );
 };
 
-export default PersonalDetails;
+export default EditProfile;

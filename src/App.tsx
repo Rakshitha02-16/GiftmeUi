@@ -34,10 +34,13 @@ import '@ionic/react/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
+import PersonalDetails from './pages/PersonalDetails';
+import WishList from './pages/wishlist';
 
 setupIonicReact();
 
 const App: React.FC = () => (
+  
   <IonApp>
     <IonReactRouter>
       <IonTabs>
@@ -51,7 +54,13 @@ const App: React.FC = () => (
           <Route path="/tab3">
             <Tab3 />
           </Route>
-          <Route path="/wishList" component={WishList} exact={true} />
+          <Route exact path="/edit-profile">
+            <PersonalDetails />
+          </Route>
+          <Route exact path="/wishlist">
+            <WishList />
+          </Route>
+          {/* <Route path="/wishList" component={WishList} exact={true} /> */}
           <Route exact path="/">
             <Redirect to="/tab1" />
           </Route>

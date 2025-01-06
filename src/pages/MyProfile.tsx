@@ -1,64 +1,105 @@
 import React, { useState, useEffect } from "react";
 import {
-  IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
+  IonButton,
+  IonModal,
   IonContent,
-  IonAvatar,
   IonGrid,
   IonRow,
   IonCol,
-  IonButton,
-  IonIcon,
-  IonModal,
-  IonCardTitle,
+  IonItem,
+  IonLabel,
   IonDatetime,
   IonSelect,
   IonSelectOption,
   IonFooter,
-  IonItem,
-  IonLabel,
+  IonAvatar,
+  IonCardTitle,
   IonAlert,
-  IonSpinner,
+  IonHeader,
+  IonIcon,
+  IonToolbar,
+  IonTitle,
+  IonPage,
 } from "@ionic/react";
-import { settingsOutline } from "ionicons/icons";
+import { addEvent, deleteEvent, fetchEvents } from "../services/ProfileService";
 import { useHistory } from "react-router-dom";
+import { settingsOutline } from "ionicons/icons";
+import "../pages/MyProfile.css";
+import { useLocation } from "react-router-dom";
+import { User } from "../interfaces/Models"; // Adjust the path as needed
 
-const ProfilePage: React.FC = () => {
-  const [posts, setPosts] = useState<any[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [name] = useState("Nithya");
+const MyProfile = () => {
+  const [date, setDate] = useState<string | undefined>("");
+  const [selectedEvent, setSelectedEvent] = useState<string | undefined>("");
   const [highlights, setHighlights] = useState<any[]>([]);
-  const [date, setDate] = useState<string | undefined>(undefined); // Date of state
-  const [selectedEvent, setSelectedEvent] = useState<string | undefined>();
-  const [selectedHighlight, setSelectedHighlight] = useState<any>(null); // Selected highlight for popup
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState<string | undefined>("");
   const [showAlert, setShowAlert] = useState(false);
-  const [alertMessage, setAlertMessage] = useState<string | undefined>(undefined);
-  const [events, setEvents] = useState<any[]>([]); // Events state
-  const [loading, setLoading] = useState(false); // Loading state for fetching events
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [anniversaryItems, setAnniversaryItems] = useState([
-    { id: 1, imgSrc: "https://via.placeholder.com/150" },
-    { id: 2, imgSrc: "https://via.placeholder.com/150" },
-  ]);
-  const [birthdayItems, setBirthdayItems] = useState([
-    { id: 3, imgSrc: "https://via.placeholder.com/150" },
-    { id: 4, imgSrc: "https://via.placeholder.com/150" },
-  ]);
-  const [showToast, setShowToast] = useState(false);
-
+  const [selectedHighlight, setSelectedHighlight] = useState<any | null>(null);
+  const [events, setEvents] = useState<any[]>([]); // Store events data
+  const [user, setUser] = useState<User | null>(null);
+  const location = useLocation();
   const history = useHistory();
+  useEffect(() => {
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+  }, []);
 
-  const navigateToWishList = () => {
-    history.push('/wishList');
+  const handleEditClick = () => {
+    history.push("/edit-profile"); // Navigate using push
+  };
+  useEffect(() => {
+    const getEvents = async () => {
+      const eventsData = await fetchEvents(); // Fetch events from the API
+      setEvents(eventsData); // Set the fetched events in state
+    };
+
+    getEvents(); // Call the function to fetch events
+  }, []);
+
+  const handleSaveEvent = async () => {
+    if (date && selectedEvent) {
+      const eventData: EventData = {
+        title: selectedEvent,
+        userId: 1, // Replace with the actual user ID
+        dateTime: date,
+      };
+
+      try {
+        // Call the addEvent function and pass the correct event data type
+        await addEvent(eventData);
+        setAlertMessage("Event added successfully!");
+        setShowAlert(true);
+        setIsModalOpen(false);
+        setHighlights((prev) => [
+          ...prev,
+          {
+            id: prev.length + 1,
+            image:
+              selectedEvent === "Birthday"
+                ? "https://media.istockphoto.com/id/1154066614/photo/happy-birthday-to-you-concept.webp?a=1&b=1&s=612x612&w=0&k=20&c=T6bCvP_eJaySZul0pNvQrsC1_fZQBABqPH6CucZXuV0="
+                : selectedEvent === "Anniversary"
+                ? "https://omghitched.com/wp-content/uploads/2024/06/image-98.jpeg"
+                : selectedEvent === "Functions"
+                ? "https://www.arin.net/participate/meetings/meetings.jpg"
+                : "https://via.placeholder.com/150",
+            name: selectedEvent,
+            description: `Event on ${new Date(date).toLocaleDateString()}`,
+          },
+        ]);
+      } catch (error) {
+        setAlertMessage("Failed to add event. Please try again.");
+        setShowAlert(true);
+      }
+    } else {
+      setAlertMessage("Please select an event and date.");
+      setShowAlert(true);
+    }
   };
 
-  const handleOpenModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
+  const closeModal = () => {
     setIsModalOpen(false);
     setSelectedEvent(undefined);
     setDate(undefined);
@@ -72,36 +113,19 @@ const ProfilePage: React.FC = () => {
     setSelectedHighlight(null);
   };
 
-  const handleDelete = async (id: string) => {
-    const apiUrl = `https://localhost:7241/api/Event?Id=${id}`;
+  const handleDelete = async (id: number) => {
     try {
-      const response = await fetch(apiUrl, {
-        method: "DELETE",
-      });
-
-      if (response.ok) {
-        setHighlights((prev) => prev.filter((item) => item.id !== id));
-        setSelectedHighlight(null);
-      } else {
-        const errorData = await response.json();
-        setAlertMessage(`Failed to delete item: ${errorData.message || "Unknown error"}`);
+      const response = await deleteEvent(id.toString()); // Call deleteEvent from service.js
+      if (response === "Successfully Deleted") {
+        setHighlights((prev) => prev.filter((item) => item.id !== id)); // Remove deleted item from highlights
+        setSelectedHighlight(null); // Clear selected highlight
+        setAlertMessage("Event deleted successfully!"); // Success message
         setShowAlert(true);
       }
     } catch (error) {
-      console.error("Error during delete operation:", error);
-      setAlertMessage("An error occurred while deleting the item.");
+      setAlertMessage("Failed to delete item. Please try again."); // Error message
       setShowAlert(true);
     }
-  };
-
-  const handleSaveEvent = () => {
-    // Save event logic
-    console.log("Event saved");
-  };
-
-  const handleAdd = () => {
-    // Add event logic
-    console.log("Event added");
   };
 
   return (
@@ -115,125 +139,79 @@ const ProfilePage: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent>
-        <IonGrid>
-          <IonRow className="ion-align-items-center ion-padding">
-            <IonCol size="2" className="ion-text-center">
-              <IonAvatar>
-                <img
-                  src="https://randomuser.me/api/portraits/women/45.jpg"
-                  alt="Lady Avatar"
-                />
+      <IonGrid>
+  <IonRow className="ion-align-items-center ion-padding">
+    <IonCol size="12" className="ion-text-center">
+      {user ? (
+        <div>
+          {/* Profile Row */}
+          <IonRow className="ion-align-items-center ion-text-center">
+            <IonCol size="3" sizeMd="4">
+              <IonAvatar className="avathar" >
+                <img src={user.profilePicture} alt="Profile" />
               </IonAvatar>
             </IonCol>
-            <IonCol size="4" className="ion-text-center">
-              <h3>12</h3>
-              <p>Wishlist</p>
-            </IonCol>
-            <IonCol size="3" className="ion-text-center">
-              <h3>340</h3>
+           
+
+          {/* Stats Row 1 */}
+         
+            <IonCol size="4" sizeMd="4">
+              <h4>340</h4>
               <p>Followers</p>
             </IonCol>
-            <IonCol size="3" className="ion-text-center">
-              <h3>250</h3>
+            <IonCol size="4" sizeMd="4">
+              <h4>250</h4>
               <p>Following</p>
             </IonCol>
           </IonRow>
-
-          <h2>{name}</h2>
-
-          <IonRow>
-            <p className="ion-padding-start">
-              If you can imagine it, you can achieve it! If you can dream it,
-              you can become it.
-            </p>
-          </IonRow>
-
-          <IonRow>
-            <IonCol size="6">
-              <IonButton expand="block" color="dark">
-                Edit Profile
-              </IonButton>
+        
+         
+          {/* Stats Row 2 */}
+          <IonRow className="ion-align-items-center ion-text-center">
+          <IonCol size="3" sizeMd="4" className="margin-left">
+              <p>{user.name}</p>
+              <p>{user.bio}</p>
             </IonCol>
-            <IonCol size="6">
-              <IonButton
-                expand="block"
-                color="dark"
-                onClick={handleOpenModal}
-              >
-                + Events
-              </IonButton>
+            <IonCol size="4" sizeMd="4">
+              <h4>250</h4>
+              <p>Gift Given</p>
             </IonCol>
+            <IonCol size="4" sizeMd="4">
+              <h4>250</h4>
+              <p>Gift Taken</p>
+            </IonCol>
+           
           </IonRow>
-        </IonGrid>
+         
+        </div>
+      ) : (
+        <p>Loading...</p>
+      )}
+    </IonCol>
+  </IonRow>
+</IonGrid>
 
-        <IonModal isOpen={isModalOpen} onDidDismiss={handleCloseModal}>
-          <IonContent>
-            <IonGrid>
-              <IonRow>
-                <IonCol>
-                  <h2>Add Event</h2>
-                </IonCol>
-              </IonRow>
-              <IonRow>
-                <IonCol>
-                  <IonItem>
-                    <IonLabel>Date</IonLabel>
-                    <IonDatetime
-                      presentation="date"
-                      onIonChange={(e) => setDate(e.detail.value!)}
-                    />
-                  </IonItem>
-                </IonCol>
-              </IonRow>
-              <IonRow>
-                <IonCol>
-                  <IonItem>
-                    <IonLabel>Event</IonLabel>
-                    {loading ? (
-                      <IonSpinner />
-                    ) : (
-                      <IonSelect
-                        placeholder="Select an event"
-                        value={selectedEvent}
-                        onIonChange={(e) => setSelectedEvent(e.detail.value)}
-                      >
-                        {events.length === 0 ? (
-                          <IonSelectOption disabled>
-                            No events available
-                          </IonSelectOption>
-                        ) : (
-                          events
-                            .filter((event) => event.title !== selectedEvent)
-                            .map((event) => (
-                              <IonSelectOption key={event.id} value={event.title}>
-                                {event.title}
-                              </IonSelectOption>
-                            ))
-                        )}
-                      </IonSelect>
-                    )}
-                  </IonItem>
-                </IonCol>
-              </IonRow>
 
-              <IonFooter>
-                <IonButton
-                  expand="block"
-                  color="primary"
-                  onClick={() => {
-                    handleSaveEvent();
-                    handleAdd();
-                  }}
-                >
-                  Add
-                </IonButton>
-                <IonButton expand="block" color="medium" onClick={handleCloseModal}>
-                  Cancel
-                </IonButton>
-              </IonFooter>
-            </IonGrid>
-          </IonContent>
-        </IonModal>
+        <IonRow>
+          <IonCol size="6" >
+            <IonButton
+              expand="block"
+              color="secondary"
+              onClick={() => setIsModalOpen(true)}
+            >
+              + Event
+            </IonButton>
+          </IonCol>
+          <IonCol size="6">
+            <IonButton
+              expand="block"
+              color="secondary"
+              onClick={handleEditClick}
+            >
+              Edit profile
+            </IonButton>
+          </IonCol>
+        </IonRow>
 
         <div
           className="horizontal-scroll-container"
@@ -248,87 +226,144 @@ const ProfilePage: React.FC = () => {
               <IonAvatar className="Avathar">
                 <img src={highlight.image} alt={highlight.name} />
               </IonAvatar>
-
               <IonCardTitle>{highlight.name}</IonCardTitle>
             </div>
           ))}
         </div>
+      </IonContent>
+      <IonModal isOpen={isModalOpen} onDidDismiss={closeModal}>
+        <IonContent>
+          <IonGrid>
+            <IonRow>
+              <IonCol>
+                <h2>Add Event</h2>
+              </IonCol>
+            </IonRow>
+            <IonRow>
+              <IonCol>
+                <IonItem>
+                  <IonLabel>Date</IonLabel>
+                  <IonDatetime
+                    presentation="date"
+                    onIonChange={(e) => {
+                      const value = Array.isArray(e.detail.value)
+                        ? e.detail.value[0]
+                        : e.detail.value;
+                      setDate(value as string | undefined);
+                    }}
+                  />
+                </IonItem>
+              </IonCol>
+            </IonRow>
+            <IonRow>
+              <IonCol>
+              <IonItem>
+  <IonLabel>Event</IonLabel>
+  <IonSelect
+    placeholder="Select an event"
+    value={selectedEvent}
+    onIonChange={(e) => {
+      const eventValue = e.detail.value;
+      setSelectedEvent(eventValue);
 
-        {selectedHighlight && (
-          <IonModal
-            isOpen={!!selectedHighlight}
-            onDidDismiss={closeHighlightModal}
-          >
-            <IonContent>
-              <IonGrid>
-                <IonRow>
-                  <IonCol className="popup-container">
+      // Do not trigger any backend call here.
+      // Simply update the local state without sending data to the backend.
+      // You can prevent triggering a backend API call here if needed.
+    }}
+  >
+    {events.map((event) => (
+      <IonSelectOption key={event.id} value={event.title}>
+        {event.title}
+      </IonSelectOption>
+    ))}
+  </IonSelect>
+</IonItem>
+
+              </IonCol>
+            </IonRow>
+            <IonFooter>
+              <IonButton
+                expand="block"
+                color="primary"
+                onClick={handleSaveEvent}
+              >
+                Add Highlight
+              </IonButton>
+              <IonButton expand="block" color="medium" onClick={closeModal}>
+                Cancel
+              </IonButton>
+            </IonFooter>
+          </IonGrid>
+        </IonContent>
+      </IonModal>
+
+      {/* Highlight Display */}
+
+      {/* Selected Highlight Modal */}
+      {selectedHighlight && (
+        <IonModal
+          isOpen={!!selectedHighlight}
+          onDidDismiss={closeHighlightModal}
+        >
+          <IonContent>
+            <IonGrid>
+              <IonRow>
+                <IonCol>
+                  <div
+                    style={{
+                      backgroundImage: `url(${selectedHighlight.image})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      height: "65vh",
+                      position: "relative",
+                    }}
+                  >
                     <div
-                      className="popup-background"
                       style={{
-                        backgroundImage: `url(${selectedHighlight.image})`,
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
-                        height: "60vh", // Default height for the image
-                        width: "100%", // Full width of the container
-                        position: "relative",
-                        marginTop: "57px",
+                        position: "absolute",
+                        bottom: "10px",
+                        left: "10px",
+                        backgroundColor: "rgba(255, 255, 255, 0.8)",
+                        padding: "5px 10px",
+                        borderRadius: "5px",
                       }}
                     >
-                      <div
-                        style={{
-                          position: "absolute",
-                          bottom: "10px",
-                          left: "10px",
-                          backgroundColor: "rgba(255, 255, 255, 0.8)",
-                          padding: "5px 10px",
-                          borderRadius: "5px",
-                        }}
-                      >
-                        {selectedDate ? (
-                          <span style={{ fontSize: "16px", color: "black" }}>
-                            Selected Date:{" "}
-                            {new Date(selectedDate).toLocaleDateString()}
-                          </span>
-                        ) : (
-                          <span style={{ fontSize: "16px", color: "gray" }}>
-                            No date selected
-                          </span>
-                        )}
-                      </div>
-                      {/* Three dots menu */}
-                      <div
-                        style={{
-                          position: "absolute",
-                          color: "black",
-                          right: "10px",
-                          marginTop: "-60px",
-                        }}
-                      >
-                        <IonButton
-                          onClick={() => handleDelete(selectedHighlight.id)}
-                        >
-                          Delete
-                        </IonButton>
-                      </div>
+                      <span style={{ fontSize: "16px", color: "black" }}>
+                        Event Date: {selectedHighlight.description}
+                      </span>
                     </div>
-                  </IonCol>
-                </IonRow>
-              </IonGrid>
-            </IonContent>
-          </IonModal>
-        )}
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: "10px",
+                        right: "10px",
+                      }}
+                    >
+                      <IonButton
+                        onClick={() => handleDelete(selectedHighlight?.id)}
+                      >
+                        Delete
+                      </IonButton>
+                    </div>
+                  </div>
+                </IonCol>
+              </IonRow>
+            </IonGrid>
+          </IonContent>
+        </IonModal>
+      )}
 
+      {/* Alert */}
+      {showAlert && (
         <IonAlert
-          isOpen={!!alertMessage}
-          onDidDismiss={() => setAlertMessage(undefined)}
-          header="Notification"
-          message={alertMessage || ""}
+          isOpen={showAlert}
+          onDidDismiss={() => setShowAlert(false)}
+          message={alertMessage}
           buttons={["OK"]}
         />
-      </IonContent>
+      )}
     </IonPage>
   );
 };
 
-export default ProfilePage;
+export default MyProfile;
