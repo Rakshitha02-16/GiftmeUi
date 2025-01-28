@@ -1,0 +1,25 @@
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+label {
+  
+  font-size:larger;
+}
+
+button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+}
+.Add-Button{
+margin-top: 20px;
+--background: rgb(30, 0, 64);
+}
+.Label {
+  
+  font-weight: bold; /* Optional: Emphasize the text */
+  
+}
+

@@ -33,10 +33,18 @@ import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 
 /* Theme variables */
-import './theme/variables.css';
-import PersonalDetails from './pages/PersonalDetails';
-import WishList from './pages/wishlist';
 
+import './theme/variables.css';
+import AddItems from "./pages/AddItems"
+import PersonalDetails from './pages/PersonalDetails';
+import WishlistDetail from './pages/WishlistDetail';
+import FollowGiftTracker from './pages/followgifttracker';
+import FollowersList from './pages/followers';
+import FollowingList from './pages/followinglist';
+// import GiftList from './pages/giftlist';
+import Giftpost from './pages/giftpost'
+
+import WishList from './pages/wishlist';
 setupIonicReact();
 
 const App: React.FC = () => (
@@ -60,10 +68,21 @@ const App: React.FC = () => (
           <Route exact path="/wishlist">
             <WishList />
           </Route>
+          <Route exact path="/add-item">
+            <AddItems />
+          </Route>
+          <Route path="/tracker" component={FollowGiftTracker} />
+          <Route path="/followers" component={FollowersList} />
+          <Route path="/following" component={FollowingList} />
+          {/* <Route path="/gifts-given" render={() => <GiftList type="given" />} />
+          <Route path="/gifts-taken" render={() => <GiftList type="taken" />} /> */}
+          <Route path="/giftpost" component={Giftpost} />
           {/* <Route path="/wishList" component={WishList} exact={true} /> */}
           <Route exact path="/">
             <Redirect to="/tab1" />
           </Route>
+          <Route path="/wishlist-detail/:wishlistId" component={WishlistDetail} />
+          
         </IonRouterOutlet>
 
         {/* Tab Bar */}

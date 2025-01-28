@@ -20,26 +20,76 @@ import {
   IonToolbar,
   IonTitle,
   IonPage,
+  IonInput,
+  IonList,
 } from "@ionic/react";
-import { addEvent, deleteEvent, fetchEvents } from "../services/ProfileService";
-import { useHistory } from "react-router-dom";
+import { addEvent, deleteEvent, fetchEvents } from "../services/EventServices";
 import { settingsOutline } from "ionicons/icons";
 import "../pages/MyProfile.css";
 import { useLocation } from "react-router-dom";
 import { User } from "../interfaces/Models"; // Adjust the path as needed
-
+import { arrowForward } from "ionicons/icons"; // Import the arrow icon
+import { useHistory } from "react-router-dom";
+import { addWishlist,  } from "../services/WishlistService";
+import { Wishlist as WishlistInterface } from "../interfaces/Models";
+import { Event } from "../interfaces/Models"; // Adjust the path based on your project structure
+import { getUserSummary } from '../services/followapi';
+import "../pages/wishlist.css";
 const MyProfile = () => {
   const [date, setDate] = useState<string | undefined>("");
   const [selectedEvent, setSelectedEvent] = useState<string | undefined>("");
-  const [highlights, setHighlights] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState<string | undefined>("");
   const [showAlert, setShowAlert] = useState(false);
   const [selectedHighlight, setSelectedHighlight] = useState<any | null>(null);
+  const [eventTypes, setEventTypes] = useState<any[]>([]);
   const [events, setEvents] = useState<any[]>([]); // Store events data
   const [user, setUser] = useState<User | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [wishlistName, setWishlistName] = useState("");
+  const [wishlists, setWishlists] = useState<WishlistInterface[]>([]);
+  const [summary, setSummary] = useState({
+      followerCount: 0,
+      followeeCount: 0,
+      giftGiven: 0,
+      giftReceived: 0,
+    });
+  
   const location = useLocation();
   const history = useHistory();
+  //wishlists
+  const handleNavigate = (wishlistId: number) => {
+    history.push(`/wishlist-detail/:wishlistId`);
+  };
+
+  const handleAddWishlist = async () => {
+    try {
+      const newWishlist = await addWishlist(wishlistName);
+
+      // Log the newly added wishlist to check its content
+      console.log("New Wishlist added:", newWishlist);
+
+      if (newWishlist && newWishlist.name) {
+        // Add the new wishlist to the state
+        setWishlists((prevWishlists) => [...prevWishlists, newWishlist]);
+        setWishlistName("");
+        setShowModal(false);
+      } else {
+        console.error("Error: New wishlist does not contain a valid name");
+      }
+    } catch (error) {
+      console.error("Error adding wishlist:", error);
+    }
+  };
+  //user local storage
+  useEffect(() => {
+      const fetchSummary = async () => {
+        const userId = 1; // Replace with actual user ID
+        const data = await getUserSummary(userId);
+        setSummary(data);
+      };
+      fetchSummary();
+    }, []);
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
@@ -51,17 +101,20 @@ const MyProfile = () => {
     history.push("/edit-profile"); // Navigate using push
   };
   useEffect(() => {
-    const getEvents = async () => {
-      const eventsData = await fetchEvents(); // Fetch events from the API
-      setEvents(eventsData); // Set the fetched events in state
-    };
-
-    getEvents(); // Call the function to fetch events
+      const eventTypes:string[] =["BirthDay","Annivarsary","Valentines day","Marriage Day"]  // Fetch events from the API
+      setEventTypes(eventTypes); // Set the fetched events in state
+      const getEvents = async () => {
+        const eventsData = await fetchEvents(); // Fetch events from the API
+        setEvents(eventsData); // Set the fetched events in state
+      };
+  
+      getEvents();
   }, []);
 
   const handleSaveEvent = async () => {
     if (date && selectedEvent) {
-      const eventData: EventData = {
+      const eventData: Event = {
+        id:0,
         title: selectedEvent,
         userId: 1, // Replace with the actual user ID
         dateTime: date,
@@ -73,22 +126,6 @@ const MyProfile = () => {
         setAlertMessage("Event added successfully!");
         setShowAlert(true);
         setIsModalOpen(false);
-        setHighlights((prev) => [
-          ...prev,
-          {
-            id: prev.length + 1,
-            image:
-              selectedEvent === "Birthday"
-                ? "https://media.istockphoto.com/id/1154066614/photo/happy-birthday-to-you-concept.webp?a=1&b=1&s=612x612&w=0&k=20&c=T6bCvP_eJaySZul0pNvQrsC1_fZQBABqPH6CucZXuV0="
-                : selectedEvent === "Anniversary"
-                ? "https://omghitched.com/wp-content/uploads/2024/06/image-98.jpeg"
-                : selectedEvent === "Functions"
-                ? "https://www.arin.net/participate/meetings/meetings.jpg"
-                : "https://via.placeholder.com/150",
-            name: selectedEvent,
-            description: `Event on ${new Date(date).toLocaleDateString()}`,
-          },
-        ]);
       } catch (error) {
         setAlertMessage("Failed to add event. Please try again.");
         setShowAlert(true);
@@ -117,7 +154,6 @@ const MyProfile = () => {
     try {
       const response = await deleteEvent(id.toString()); // Call deleteEvent from service.js
       if (response === "Successfully Deleted") {
-        setHighlights((prev) => prev.filter((item) => item.id !== id)); // Remove deleted item from highlights
         setSelectedHighlight(null); // Clear selected highlight
         setAlertMessage("Event deleted successfully!"); // Success message
         setShowAlert(true);
@@ -139,64 +175,67 @@ const MyProfile = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent>
-      <IonGrid>
-  <IonRow className="ion-align-items-center ion-padding">
-    <IonCol size="12" className="ion-text-center">
-      {user ? (
-        <div>
-          {/* Profile Row */}
-          <IonRow className="ion-align-items-center ion-text-center">
-            <IonCol size="3" sizeMd="4">
-              <IonAvatar className="avathar" >
-                <img src={user.profilePicture} alt="Profile" />
-              </IonAvatar>
-            </IonCol>
-           
+        <IonGrid>
+          <IonRow className="ion-align-items-center ion-padding">
+            <IonCol size="12" className="ion-text-center">
+              {user ? (
+                <div>
+                  {/* Profile Row */}
+                  <IonRow className="ion-align-items-center ion-text-center">
+                    <IonCol size="3" sizeMd="4">
+                      <IonAvatar className="avathar">
+                        <img src={user.profilePicture} alt="Profile" />
+                      </IonAvatar>
+                    </IonCol>
 
-          {/* Stats Row 1 */}
-         
-            <IonCol size="4" sizeMd="4">
-              <h4>340</h4>
-              <p>Followers</p>
-            </IonCol>
-            <IonCol size="4" sizeMd="4">
-              <h4>250</h4>
-              <p>Following</p>
+                    {/* Stats Row 1 */}
+
+                    <IonCol size="4" sizeMd="4">
+                      <h4>{summary.followerCount}</h4>
+                      <a href="/followers" style={{ textDecoration: 'none', color: 'inherit' }} >
+        Follower
+      </a>
+                    </IonCol>
+                    <IonCol size="4" sizeMd="4">
+                    <h4>{summary.followeeCount}</h4>
+                      <a href="/following" style={{ textDecoration: 'none', color: 'inherit' }} >
+        Following
+      </a>
+                    </IonCol>
+                  </IonRow>
+
+                  {/* Stats Row 2 */}
+                  <IonRow className="ion-align-items-center ion-text-center">
+                    <IonCol size="3" sizeMd="4" className="margin-left">
+                      <p>{user.name}</p>
+                      <p>{user.bio}</p>
+                    </IonCol>
+                    <IonCol size="4" sizeMd="4">
+                    <h4>{summary.giftGiven} </h4>
+                      <a href="/gifts-given" style={{ textDecoration: 'none', color: 'inherit' }} >
+        Gift given
+      </a>
+                    </IonCol>
+                    <IonCol size="4" sizeMd="4">
+                    <h4>{summary.giftReceived}</h4>
+                      <a href="/gifts-taken" style={{ textDecoration: 'none', color: 'inherit' }}>
+        Gift taken
+      </a>
+                    </IonCol>
+                  </IonRow>
+                </div>
+              ) : (
+                <p>Loading...</p>
+              )}
             </IonCol>
           </IonRow>
-        
-         
-          {/* Stats Row 2 */}
-          <IonRow className="ion-align-items-center ion-text-center">
-          <IonCol size="3" sizeMd="4" className="margin-left">
-              <p>{user.name}</p>
-              <p>{user.bio}</p>
-            </IonCol>
-            <IonCol size="4" sizeMd="4">
-              <h4>250</h4>
-              <p>Gift Given</p>
-            </IonCol>
-            <IonCol size="4" sizeMd="4">
-              <h4>250</h4>
-              <p>Gift Taken</p>
-            </IonCol>
-           
-          </IonRow>
-         
-        </div>
-      ) : (
-        <p>Loading...</p>
-      )}
-    </IonCol>
-  </IonRow>
-</IonGrid>
-
+        </IonGrid>
 
         <IonRow>
-          <IonCol size="6" >
+          <IonCol size="6">
             <IonButton
               expand="block"
-              color="secondary"
+             className="button"
               onClick={() => setIsModalOpen(true)}
             >
               + Event
@@ -205,7 +244,7 @@ const MyProfile = () => {
           <IonCol size="6">
             <IonButton
               expand="block"
-              color="secondary"
+              className="button"
               onClick={handleEditClick}
             >
               Edit profile
@@ -217,20 +256,80 @@ const MyProfile = () => {
           className="horizontal-scroll-container"
           style={{ display: "flex", overflowX: "auto", whiteSpace: "nowrap" }}
         >
-          {highlights.map((highlight) => (
+          {events.map((event) => (
             <div
-              key={highlight.id}
+              key={event.id}
               style={{ flexShrink: 0, width: "120px", textAlign: "center" }}
-              onClick={() => openHighlightModal(highlight)}
+              onClick={() => openHighlightModal(event)}
             >
               <IonAvatar className="Avathar">
-                <img src={highlight.image} alt={highlight.name} />
+                <img src={event.image} alt={event.title} />
               </IonAvatar>
-              <IonCardTitle>{highlight.name}</IonCardTitle>
+              <IonCardTitle>{event.title}</IonCardTitle>
             </div>
           ))}
         </div>
+        <h4>Wishlists</h4>
+        <IonList>
+          {wishlists.map((wishlist) => (
+            <IonItem
+              key={wishlist.id}
+              button
+              onClick={() => handleNavigate(wishlist.id)}
+            >
+              <IonLabel>{wishlist.name || "Unnamed Wishlist"}</IonLabel>
+              <IonIcon icon={arrowForward} slot="end" />
+            </IonItem>
+          ))}
+        </IonList>
+        <IonButton className="button" onClick={() => setShowModal(true)}>Add</IonButton>
       </IonContent>
+
+      <IonModal
+        isOpen={showModal}
+        onDidDismiss={() => setShowModal(false)}
+        className="custom-modal"
+      >
+        <IonHeader>
+          <IonToolbar>
+            <IonTitle>Add Wishlist</IonTitle>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent className="ion-padding">
+          <IonRow className="ion-align-items-center ion-justify-content-center">
+            <IonCol size="12" sizeMd="8">
+              <IonItem>
+                <IonLabel position="floating"> Enter Wishlist Name</IonLabel>
+                <IonInput
+                  className="Input-field"
+                  value={wishlistName}
+                  onIonChange={(e) => setWishlistName(e.detail.value!)}
+                />
+              </IonItem>
+            </IonCol>
+          </IonRow>
+          <IonRow className="ion-justify-content-center">
+            <IonCol size="auto">
+              <IonButton
+                className="ion-button"
+                expand="block"
+                onClick={handleAddWishlist}
+              >
+                Enter
+              </IonButton>
+            </IonCol>
+            <IonCol size="auto">
+              <IonButton
+                color="danger"
+                expand="block"
+                onClick={() => setShowModal(false)}
+              >
+                Cancel
+              </IonButton>
+            </IonCol>
+          </IonRow>
+        </IonContent>
+      </IonModal>
       <IonModal isOpen={isModalOpen} onDidDismiss={closeModal}>
         <IonContent>
           <IonGrid>
@@ -255,30 +354,30 @@ const MyProfile = () => {
                 </IonItem>
               </IonCol>
             </IonRow>
+
             <IonRow>
               <IonCol>
-              <IonItem>
-  <IonLabel>Event</IonLabel>
-  <IonSelect
-    placeholder="Select an event"
-    value={selectedEvent}
-    onIonChange={(e) => {
-      const eventValue = e.detail.value;
-      setSelectedEvent(eventValue);
+                <IonItem>
+                  <IonLabel>Event</IonLabel>
+                  <IonSelect
+                    placeholder="Select an event"
+                    value={selectedEvent}
+                    onIonChange={(e) => {
+                      const eventValue = e.detail.value;
+                      setSelectedEvent(eventValue);
 
-      // Do not trigger any backend call here.
-      // Simply update the local state without sending data to the backend.
-      // You can prevent triggering a backend API call here if needed.
-    }}
-  >
-    {events.map((event) => (
-      <IonSelectOption key={event.id} value={event.title}>
-        {event.title}
-      </IonSelectOption>
-    ))}
-  </IonSelect>
-</IonItem>
-
+                      // Do not trigger any backend call here.
+                      // Simply update the local state without sending data to the backend.
+                      // You can prevent triggering a backend API call here if needed.
+                    }}
+                  >
+                    {eventTypes.map((event) => (
+                      <IonSelectOption key={event} value={event}>
+                        {event}
+                      </IonSelectOption>
+                    ))}
+                  </IonSelect>
+                </IonItem>
               </IonCol>
             </IonRow>
             <IonFooter>
@@ -287,7 +386,7 @@ const MyProfile = () => {
                 color="primary"
                 onClick={handleSaveEvent}
               >
-                Add Highlight
+                Add Event
               </IonButton>
               <IonButton expand="block" color="medium" onClick={closeModal}>
                 Cancel
@@ -301,7 +400,7 @@ const MyProfile = () => {
 
       {/* Selected Highlight Modal */}
       {selectedHighlight && (
-        <IonModal
+        <IonModal 
           isOpen={!!selectedHighlight}
           onDidDismiss={closeHighlightModal}
         >
