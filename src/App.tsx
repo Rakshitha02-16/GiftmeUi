@@ -33,7 +33,9 @@ import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 
 /* Theme variables */
+
 import './theme/variables.css';
+import AddItems from "./pages/AddItems"
 import PersonalDetails from './pages/PersonalDetails';
 import Login from './pages/Login';
 import Confirmotp from './pages/Confirmotp';
@@ -42,6 +44,14 @@ import GiftSearch from './pages/GiftSearch';
 import SearchInterest from './pages/Tab2';
 import Home from "./pages/Home";
 import FriendsPage from "./pages/FrientdsPage"
+import WishlistDetail from './pages/WishlistDetail';
+import FollowGiftTracker from './pages/followgifttracker';
+import FollowersList from './pages/followers';
+import FollowingList from './pages/followinglist';
+// import GiftList from './pages/giftlist';
+import Giftpost from './pages/giftpost'
+
+import WishList from './pages/wishlist';
 setupIonicReact();
 import FollowRequests from './pages/FollowRequest';
 
@@ -70,11 +80,22 @@ const App: React.FC = () => (
           <Route path="/searchpage" component={SearchInterest} exact/>
            <Route path="/home" component={Home} exact />
           <Route path="/friends" component={FriendsPage} exact />
+          <Route exact path="/add-item">
+            <AddItems />
+          </Route>
+          <Route path="/tracker" component={FollowGiftTracker} />
+          <Route path="/followers" component={FollowersList} />
+          <Route path="/following" component={FollowingList} />
+          {/* <Route path="/gifts-given" render={() => <GiftList type="given" />} />
+          <Route path="/gifts-taken" render={() => <GiftList type="taken" />} /> */}
+          <Route path="/giftpost" component={Giftpost} />
           {/* <Route path="/wishList" component={WishList} exact={true} /> */}
           <Route exact path="/">
             <Redirect to="/tab1" />
           </Route>
          <Route path="/FollowRequest" component={FollowRequests} exact/>
+          <Route path="/wishlist-detail/:wishlistId" component={WishlistDetail} />
+          
         </IonRouterOutlet>
 
         {/* Tab Bar */}

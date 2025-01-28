@@ -1,0 +1,49 @@
+.button-container {
+  display: flex;
+  gap: 8px; /* Space between the buttons */
+  margin-top: 10px; /* Optional: Adds some space above the buttons */
+}
+
+.button-container .ion-button {
+  flex: 1; /* Makes the buttons take up equal width, if desired */
+}
+.button-container {
+  display: flex;
+  gap: 8px; /* Space between the buttons */
+  margin-top: 10px; /* Optional: Adds space above the buttons */
+}
+
+/* General smaller button style */
+.small-button {
+  font-size: 12px; /* Smaller text */
+  padding: 5px 12px; /* Smaller padding */
+  height: 30px; /* Smaller height */
+  border-radius: 4px; /* Optional: Adjust border radius */
+  min-width: 70px; /* Optional: Set a minimum width */
+}
+
+/* Specific style for delete button */
+.delete-button {
+ 
+  color: white;
+}
+
+/* Specific style for buy now button */
+.buy-button {
+background-color: transparent;
+  color: white;
+}
+
+/* Specific style for share button */
+
+.item-container {
+  display: flex;
+  align-items: center; /* Aligns vertically */
+  gap: 10px; /* Space between the name and the icon */
+}
+
+.share-icon {
+  cursor: pointer; /* Change cursor to pointer when hovering over the icon */
+  font-size: 24px; /* Set the icon size */
+  
+}

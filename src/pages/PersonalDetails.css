@@ -11,3 +11,18 @@
 .form-item .ion-input, .form-item .ion-textarea {
   width: 100%;
 }
+.button{
+  --background: rgb(30, 0, 64);
+  margin-top: 10%;
+  border-radius: 20%;
+}
+.Avatar {
+  display: grid; /* Enable grid layout */
+  place-items: center; /* Center both horizontally and vertically */
+   /* Set full height for vertical centering */
+  text-align: center;
+  margin-left: 40%;
+  margin-top: 10%;
+
+}
+

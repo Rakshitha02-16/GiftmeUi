@@ -1,3 +1,21 @@
 .avathar{
   margin-right:"89px"
 }
+
+.button{
+  --background: rgb(30, 0, 64);
+ 
+}
+.input-box {
+  border: 1px solid #090909;
+  padding: 10px;
+  margin: 10px 0;
+  background-color: #f9f9f9;
+  margin-top: 8%;
+}
+
+.input-field {
+  font-size: 16px;
+  padding: 8px;
+ 
+}
