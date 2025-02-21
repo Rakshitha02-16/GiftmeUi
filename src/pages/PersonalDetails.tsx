@@ -16,7 +16,7 @@ import {
 } from "@ionic/react";
 import { useHistory } from "react-router-dom";
 import { createUser, updateUser, deleteProfilePic, fetchUser } from "../services/ProfileService";
-import { User } from "../interfaces/Models";
+import { User } from "../Models/User";
 import "../pages/PersonalDetails.css";
 
 const EditProfile: React.FC = () => {

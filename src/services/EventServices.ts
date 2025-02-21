@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Event } from '../interfaces/Models'
+import { Event } from '../Models/Event'
 export const fetchEvents = async () => {
   try {
     const response = await axios.get('https://localhost:7241/api/Event/1'); // API endpoint

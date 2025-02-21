@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Item } from "../interfaces/Models";
+import { Item } from "../Models/Item";
 
 const apiClient = axios.create({
   baseURL: "https://localhost:7241/api/Item", // Adjust to your API base URL
@@ -9,9 +9,9 @@ const apiClient = axios.create({
 });
 
 // Add a new item
-export const addItem = async (itemData: Item): Promise<string> => {
+export const addItem = async (item: Item): Promise<string> => {
   try {
-    const response = await apiClient.post("/", itemData);
+    const response = await apiClient.post("/", item);
 
     if (response.status === 204) {
       console.log("204 No Content: Item added successfully.");
