@@ -1,49 +1,99 @@
-.button-container {
+.wishlist-content {
+  padding: 16px;
+}
+
+.wishlist-header {
   display: flex;
-  gap: 8px; /* Space between the buttons */
-  margin-top: 10px; /* Optional: Adds some space above the buttons */
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
 }
 
-.button-container .ion-button {
-  flex: 1; /* Makes the buttons take up equal width, if desired */
-}
-.button-container {
+.wishlist-actions {
   display: flex;
-  gap: 8px; /* Space between the buttons */
-  margin-top: 10px; /* Optional: Adds space above the buttons */
+  gap: 10px;
 }
 
-/* General smaller button style */
-.small-button {
-  font-size: 12px; /* Smaller text */
-  padding: 5px 12px; /* Smaller padding */
-  height: 30px; /* Smaller height */
-  border-radius: 4px; /* Optional: Adjust border radius */
-  min-width: 70px; /* Optional: Set a minimum width */
+.add-btn,
+.delete-btn,
+.buy-btn {
+  font-weight: bold;
+  border-radius: 8px;
+  text-transform: uppercase;
 }
 
-/* Specific style for delete button */
-.delete-button {
- 
-  color: white;
-}
-
-/* Specific style for buy now button */
-.buy-button {
-background-color: transparent;
-  color: white;
-}
-
-/* Specific style for share button */
-
-.item-container {
+.item-card {
   display: flex;
-  align-items: center; /* Aligns vertically */
-  gap: 10px; /* Space between the name and the icon */
+  flex-direction: row;
+  align-items: center;
+  padding: 16px;
+  margin: 10px 0;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background: white;
+}
+
+.item-image {
+  width: 120px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-right: 12px;
+}
+
+.item-details {
+  flex: 1;
+}
+
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .share-icon {
-  cursor: pointer; /* Change cursor to pointer when hovering over the icon */
-  font-size: 24px; /* Set the icon size */
+  font-size: 20px;
+  cursor: pointer;
+  margin-left: 89%;
   
+}
+
+.item-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.delete-btn {
+  background-color: #d9534f;
+  color: white;
+}
+
+.buy-btn {
+  background-color: #6f42c1;
+  color: white;
+}
+
+.no-items {
+  text-align: center;
+  font-style: italic;
+  margin-top: 20px;
+}
+.small-image {
+  width: 100px;  /* Set desired width */
+  height: 100px; /* Set desired height */
+  object-fit: cover; /* Ensures the image fits well */
+  border-radius: 8px; /* Optional: Adds rounded corners */
+  margin-right: 20%;
+
+}
+.wishlist-actions{
+  margin-left: 30px;
+  margin-top: 10px;
+}
+.wishlist-buttons{
+  margin-left: 30px;
+}
+.wishlist-title{
+  margin-top: 20px;
 }

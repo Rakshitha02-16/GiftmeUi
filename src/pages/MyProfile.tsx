@@ -27,15 +27,17 @@ import { addEvent, deleteEvent, fetchEvents } from "../services/EventServices";
 import { settingsOutline } from "ionicons/icons";
 import "../pages/MyProfile.css";
 import { useLocation } from "react-router-dom";
-import { User } from "../interfaces/Models"; // Adjust the path as needed
+import { User } from "../Models/User"; // Adjust the path as needed
 import { arrowForward } from "ionicons/icons"; // Import the arrow icon
 import { useHistory } from "react-router-dom";
-import { addWishlist,  } from "../services/WishlistService";
-import { Wishlist as WishlistInterface } from "../interfaces/Models";
-import { Event } from "../interfaces/Models"; // Adjust the path based on your project structure
-import { getUserSummary } from '../services/followapi';
-import "../pages/wishlist.css";
-const MyProfile = () => {
+import { addWishlist } from "../services/WishlistService";
+import { Wishlist } from "../Models/Wishlist";
+import { Event } from "../Models/Event"; // Adjust the path based on your project structure
+
+import { getUserSummary } from "../services/followapi";
+
+import { getWishlistById } from "../services/WishlistService";
+const MyProfile: React.FC<{ userId: number }> = ({ userId }) => {
   const [date, setDate] = useState<string | undefined>("");
   const [selectedEvent, setSelectedEvent] = useState<string | undefined>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -47,49 +49,106 @@ const MyProfile = () => {
   const [user, setUser] = useState<User | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [wishlistName, setWishlistName] = useState("");
-  const [wishlists, setWishlists] = useState<WishlistInterface[]>([]);
+ 
+  const storedWishlists = JSON.parse(localStorage.getItem("wishlists") || "[]");
+const [wishlists, setWishlists] = useState<Array<any>>(storedWishlists);
+
+
+
+
+
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [summary, setSummary] = useState({
-      followerCount: 0,
-      followeeCount: 0,
-      giftGiven: 0,
-      giftReceived: 0,
-    });
-  
+    followerCount: 0,
+    followeeCount: 0,
+    giftGiven: 0,
+    giftReceived: 0,
+  });
+
   const location = useLocation();
   const history = useHistory();
   //wishlists
-  const handleNavigate = (wishlistId: number) => {
-    history.push(`/wishlist-detail/:wishlistId`);
-  };
-
+  
+  // Add new wishlist
   const handleAddWishlist = async () => {
+    if (!wishlistName.trim()) {
+      setError("❌ Wishlist name is required.");
+      return;
+    }
+  
     try {
-      const newWishlist = await addWishlist(wishlistName);
-
-      // Log the newly added wishlist to check its content
-      console.log("New Wishlist added:", newWishlist);
-
-      if (newWishlist && newWishlist.name) {
-        // Add the new wishlist to the state
-        setWishlists((prevWishlists) => [...prevWishlists, newWishlist]);
-        setWishlistName("");
-        setShowModal(false);
-      } else {
-        console.error("Error: New wishlist does not contain a valid name");
+      const newWishlist = await addWishlist(wishlistName, userId);
+      console.log("API Response:", newWishlist);
+  
+      if (!newWishlist || !newWishlist.id) {
+        console.error("Error: API returned invalid data", newWishlist);
+        setError("❌ Failed to add wishlist. Please try again.");
+        return;
       }
+  
+      setWishlists((prevWishlists) => {
+        console.log("Previous Wishlists:", prevWishlists);
+      
+        const updatedWishlists = [...(prevWishlists || []), newWishlist];
+        
+        localStorage.setItem("wishlists", JSON.stringify(updatedWishlists));
+        return updatedWishlists;
+      });
+      
+  
+      setWishlistName(""); // ✅ Clear input field
+      setShowModal(false);
     } catch (error) {
       console.error("Error adding wishlist:", error);
+      setError("❌ Failed to add wishlist. Please check your connection.");
     }
   };
+  
+  
+  
+  
+
+  // Fetch wishlists on mount
+  useEffect(() => {
+    getWishlistById(userId)
+      .then((data) => {
+        console.log("✅ Wishlists from API:", data);
+  
+        if (Array.isArray(data)) {
+          setWishlists((prevWishlists) => {
+            const safeWishlists = Array.isArray(prevWishlists) ? prevWishlists : [];
+            const mergedWishlists = [...safeWishlists, ...data].filter(
+              (wishlist, index, self) =>
+                index === self.findIndex((w) => w.id === wishlist.id)
+            );
+  
+            localStorage.setItem("wishlists", JSON.stringify(mergedWishlists));
+            return mergedWishlists;
+          });
+        } else {
+          console.error("❌ API did not return an array:", data);
+        }
+      })
+      .catch((error) => console.error("❌ Error loading wishlists:", error));
+  }, [userId]);
+  
+  // ✅ Navigate to Wishlist Details
+  const handleNavigate = (id: number, name: string) => {
+    history.push(`/wishlist-detail/${id}/${name}`);
+  };
+  
+  
+  
   //user local storage
   useEffect(() => {
-      const fetchSummary = async () => {
-        const userId = 1; // Replace with actual user ID
-        const data = await getUserSummary(userId);
-        setSummary(data);
-      };
-      fetchSummary();
-    }, []);
+    const fetchSummary = async () => {
+      // const userId = 1; // Replace with actual user ID
+      const data = await getUserSummary(userId);
+      setSummary(data);
+    };
+    fetchSummary();
+  }, []);
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
@@ -101,20 +160,25 @@ const MyProfile = () => {
     history.push("/edit-profile"); // Navigate using push
   };
   useEffect(() => {
-      const eventTypes:string[] =["BirthDay","Annivarsary","Valentines day","Marriage Day"]  // Fetch events from the API
-      setEventTypes(eventTypes); // Set the fetched events in state
-      const getEvents = async () => {
-        const eventsData = await fetchEvents(); // Fetch events from the API
-        setEvents(eventsData); // Set the fetched events in state
-      };
-  
-      getEvents();
+    const eventTypes: string[] = [
+      "BirthDay",
+      "Annivarsary",
+      "Valentines day",
+      "Marriage Day",
+    ]; // Fetch events from the API
+    setEventTypes(eventTypes); // Set the fetched events in state
+    const getEvents = async () => {
+      const eventsData = await fetchEvents(); // Fetch events from the API
+      setEvents(eventsData); // Set the fetched events in state
+    };
+
+    getEvents();
   }, []);
 
   const handleSaveEvent = async () => {
     if (date && selectedEvent) {
       const eventData: Event = {
-        id:0,
+        id: 0,
         title: selectedEvent,
         userId: 1, // Replace with the actual user ID
         dateTime: date,
@@ -192,15 +256,21 @@ const MyProfile = () => {
 
                     <IonCol size="4" sizeMd="4">
                       <h4>{summary.followerCount}</h4>
-                      <a href="/followers" style={{ textDecoration: 'none', color: 'inherit' }} >
-        Follower
-      </a>
+                      <a
+                        href="/followers"
+                        style={{ textDecoration: "none", color: "inherit" }}
+                      >
+                        Follower
+                      </a>
                     </IonCol>
                     <IonCol size="4" sizeMd="4">
-                    <h4>{summary.followeeCount}</h4>
-                      <a href="/following" style={{ textDecoration: 'none', color: 'inherit' }} >
-        Following
-      </a>
+                      <h4>{summary.followeeCount}</h4>
+                      <a
+                        href="/following"
+                        style={{ textDecoration: "none", color: "inherit" }}
+                      >
+                        Following
+                      </a>
                     </IonCol>
                   </IonRow>
 
@@ -211,16 +281,22 @@ const MyProfile = () => {
                       <p>{user.bio}</p>
                     </IonCol>
                     <IonCol size="4" sizeMd="4">
-                    <h4>{summary.giftGiven} </h4>
-                      <a href="/gifts-given" style={{ textDecoration: 'none', color: 'inherit' }} >
-        Gift given
-      </a>
+                      <h4>{summary.giftGiven} </h4>
+                      <a
+                        href="/gifts-given"
+                        style={{ textDecoration: "none", color: "inherit" }}
+                      >
+                        Gift given
+                      </a>
                     </IonCol>
                     <IonCol size="4" sizeMd="4">
-                    <h4>{summary.giftReceived}</h4>
-                      <a href="/gifts-taken" style={{ textDecoration: 'none', color: 'inherit' }}>
-        Gift taken
-      </a>
+                      <h4>{summary.giftReceived}</h4>
+                      <a
+                        href="/gifts-taken"
+                        style={{ textDecoration: "none", color: "inherit" }}
+                      >
+                        Gift taken
+                      </a>
                     </IonCol>
                   </IonRow>
                 </div>
@@ -235,7 +311,7 @@ const MyProfile = () => {
           <IonCol size="6">
             <IonButton
               expand="block"
-             className="button"
+              className="button"
               onClick={() => setIsModalOpen(true)}
             >
               + Event
@@ -269,20 +345,29 @@ const MyProfile = () => {
             </div>
           ))}
         </div>
-        <h4>Wishlists</h4>
         <IonList>
-          {wishlists.map((wishlist) => (
-            <IonItem
-              key={wishlist.id}
-              button
-              onClick={() => handleNavigate(wishlist.id)}
-            >
-              <IonLabel>{wishlist.name || "Unnamed Wishlist"}</IonLabel>
-              <IonIcon icon={arrowForward} slot="end" />
-            </IonItem>
-          ))}
-        </IonList>
-        <IonButton className="button" onClick={() => setShowModal(true)}>Add</IonButton>
+  {wishlists.length > 0 ? (
+    wishlists.map((wishlist) => (
+      <IonItem key={wishlist.id} button onClick={() => handleNavigate(wishlist.id, wishlist.name)}>
+        <IonLabel>{wishlist.name}</IonLabel>
+        <IonIcon icon={arrowForward} slot="end" />
+      </IonItem>
+    ))
+  ) : (
+    <IonItem>
+      <IonLabel> No wishlists available </IonLabel>
+    </IonItem>
+  )}
+</IonList>
+
+
+
+
+
+
+        <IonButton className="button" onClick={() => setShowModal(true)}>
+          Add
+        </IonButton>
       </IonContent>
 
       <IonModal
@@ -305,6 +390,7 @@ const MyProfile = () => {
                   value={wishlistName}
                   onIonChange={(e) => setWishlistName(e.detail.value!)}
                 />
+               
               </IonItem>
             </IonCol>
           </IonRow>
@@ -400,7 +486,7 @@ const MyProfile = () => {
 
       {/* Selected Highlight Modal */}
       {selectedHighlight && (
-        <IonModal 
+        <IonModal
           isOpen={!!selectedHighlight}
           onDidDismiss={closeHighlightModal}
         >

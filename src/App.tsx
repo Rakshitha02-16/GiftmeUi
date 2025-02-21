@@ -43,8 +43,10 @@ import FollowersList from './pages/followers';
 import FollowingList from './pages/followinglist';
 // import GiftList from './pages/giftlist';
 import Giftpost from './pages/giftpost'
-
-import WishList from './pages/wishlist';
+// import WishList from './pages/wishlist';
+import ProfileSearch from './pages/ProfileSearch'
+import SearchPage from './pages/SearchPage';
+import GiftSearchPage from './pages/GiftSearchPage'
 setupIonicReact();
 
 const App: React.FC = () => (
@@ -59,30 +61,36 @@ const App: React.FC = () => (
           <Route exact path="/tab2">
             <Tab2 />
           </Route>
-          <Route path="/tab3">
-            <Tab3 />
-          </Route>
+          <Route path="/tab3" render={() => {
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  return <Tab3 userId={user?.id || 1} />;
+}} />
+
           <Route exact path="/edit-profile">
             <PersonalDetails />
           </Route>
-          <Route exact path="/wishlist">
+          {/* <Route exact path="/wishlist">
             <WishList />
-          </Route>
-          <Route exact path="/add-item">
-            <AddItems />
-          </Route>
+          </Route> */}
+          
+          <Route path="/add-item/:wishlistId/:wishlistName" component={AddItems} />
+
           <Route path="/tracker" component={FollowGiftTracker} />
           <Route path="/followers" component={FollowersList} />
           <Route path="/following" component={FollowingList} />
           {/* <Route path="/gifts-given" render={() => <GiftList type="given" />} />
           <Route path="/gifts-taken" render={() => <GiftList type="taken" />} /> */}
           <Route path="/giftpost" component={Giftpost} />
-          {/* <Route path="/wishList" component={WishList} exact={true} /> */}
+           {/* <Route path="/wishList" component={WishList} exact={true} />  */}
           <Route exact path="/">
             <Redirect to="/tab1" />
           </Route>
-          <Route path="/wishlist-detail/:wishlistId" component={WishlistDetail} />
-          
+         <Route path="/wishlist-detail/:wishlistId/:wishlistName" component={WishlistDetail} />
+
+          <Route path="/SearchPage" component={SearchPage} />
+          <Route path="/GiftSearch" component={GiftSearchPage} />
+          <Route path="/ProfileSearch" component={ProfileSearch} exact />
+
         </IonRouterOutlet>
 
         {/* Tab Bar */}
