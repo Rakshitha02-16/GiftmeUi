@@ -24,17 +24,16 @@ import {
   IonList,
 } from "@ionic/react";
 import { addEvent, deleteEvent, fetchEvents } from "../services/EventServices";
-import { settingsOutline } from "ionicons/icons";
 import "../pages/MyProfile.css";
 import { useLocation } from "react-router-dom";
-import { User } from "../Models/User"; // Adjust the path as needed
-import { arrowForward } from "ionicons/icons"; // Import the arrow icon
+import { User } from "../Models/User";
+import { arrowForward } from "ionicons/icons";
 import { useHistory } from "react-router-dom";
 import { addWishlist } from "../services/WishlistService";
-import { Wishlist } from "../Models/Wishlist";
+
 import { Event } from "../Models/Event"; // Adjust the path based on your project structure
 
-import { getUserSummary } from "../services/followapi";
+import { getUserSummary } from "../services/UserProfile";
 
 import { getWishlistById } from "../services/WishlistService";
 const MyProfile: React.FC<{ userId: number }> = ({ userId }) => {
@@ -49,13 +48,9 @@ const MyProfile: React.FC<{ userId: number }> = ({ userId }) => {
   const [user, setUser] = useState<User | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [wishlistName, setWishlistName] = useState("");
- 
+
   const storedWishlists = JSON.parse(localStorage.getItem("wishlists") || "[]");
-const [wishlists, setWishlists] = useState<Array<any>>(storedWishlists);
-
-
-
-
+  const [wishlists, setWishlists] = useState<Array<any>>(storedWishlists);
 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -69,34 +64,33 @@ const [wishlists, setWishlists] = useState<Array<any>>(storedWishlists);
   const location = useLocation();
   const history = useHistory();
   //wishlists
-  
+
   // Add new wishlist
   const handleAddWishlist = async () => {
     if (!wishlistName.trim()) {
       setError("❌ Wishlist name is required.");
       return;
     }
-  
+
     try {
       const newWishlist = await addWishlist(wishlistName, userId);
       console.log("API Response:", newWishlist);
-  
+
       if (!newWishlist || !newWishlist.id) {
         console.error("Error: API returned invalid data", newWishlist);
         setError("❌ Failed to add wishlist. Please try again.");
         return;
       }
-  
+
       setWishlists((prevWishlists) => {
         console.log("Previous Wishlists:", prevWishlists);
-      
+
         const updatedWishlists = [...(prevWishlists || []), newWishlist];
-        
+
         localStorage.setItem("wishlists", JSON.stringify(updatedWishlists));
         return updatedWishlists;
       });
-      
-  
+
       setWishlistName(""); // ✅ Clear input field
       setShowModal(false);
     } catch (error) {
@@ -104,25 +98,23 @@ const [wishlists, setWishlists] = useState<Array<any>>(storedWishlists);
       setError("❌ Failed to add wishlist. Please check your connection.");
     }
   };
-  
-  
-  
-  
 
   // Fetch wishlists on mount
   useEffect(() => {
     getWishlistById(userId)
       .then((data) => {
         console.log("✅ Wishlists from API:", data);
-  
+
         if (Array.isArray(data)) {
           setWishlists((prevWishlists) => {
-            const safeWishlists = Array.isArray(prevWishlists) ? prevWishlists : [];
+            const safeWishlists = Array.isArray(prevWishlists)
+              ? prevWishlists
+              : [];
             const mergedWishlists = [...safeWishlists, ...data].filter(
               (wishlist, index, self) =>
                 index === self.findIndex((w) => w.id === wishlist.id)
             );
-  
+
             localStorage.setItem("wishlists", JSON.stringify(mergedWishlists));
             return mergedWishlists;
           });
@@ -132,14 +124,12 @@ const [wishlists, setWishlists] = useState<Array<any>>(storedWishlists);
       })
       .catch((error) => console.error("❌ Error loading wishlists:", error));
   }, [userId]);
-  
+
   // ✅ Navigate to Wishlist Details
   const handleNavigate = (id: number, name: string) => {
     history.push(`/wishlist-detail/${id}/${name}`);
   };
-  
-  
-  
+
   //user local storage
   useEffect(() => {
     const fetchSummary = async () => {
@@ -185,7 +175,6 @@ const [wishlists, setWishlists] = useState<Array<any>>(storedWishlists);
       };
 
       try {
-        // Call the addEvent function and pass the correct event data type
         await addEvent(eventData);
         setAlertMessage("Event added successfully!");
         setShowAlert(true);
@@ -233,9 +222,6 @@ const [wishlists, setWishlists] = useState<Array<any>>(storedWishlists);
       <IonHeader>
         <IonToolbar>
           <IonTitle>My Profile</IonTitle>
-          <IonButton fill="clear" slot="end">
-            <IonIcon icon={settingsOutline} />
-          </IonButton>
         </IonToolbar>
       </IonHeader>
       <IonContent>
@@ -341,31 +327,31 @@ const [wishlists, setWishlists] = useState<Array<any>>(storedWishlists);
               <IonAvatar className="Avathar">
                 <img src={event.image} alt={event.title} />
               </IonAvatar>
-              <IonCardTitle>{event.title}</IonCardTitle>
+              <h5>{event.title}</h5>
             </div>
           ))}
         </div>
+        <h5 className="wishlist">WISHLIST</h5>
         <IonList>
-  {wishlists.length > 0 ? (
-    wishlists.map((wishlist) => (
-      <IonItem key={wishlist.id} button onClick={() => handleNavigate(wishlist.id, wishlist.name)}>
-        <IonLabel>{wishlist.name}</IonLabel>
-        <IonIcon icon={arrowForward} slot="end" />
-      </IonItem>
-    ))
-  ) : (
-    <IonItem>
-      <IonLabel> No wishlists available </IonLabel>
-    </IonItem>
-  )}
-</IonList>
+          {wishlists.length > 0 ? (
+            wishlists.map((wishlist) => (
+              <IonItem
+                key={wishlist.id}
+                button
+                onClick={() => handleNavigate(wishlist.id, wishlist.name)}
+              >
+                <IonLabel>{wishlist.name}</IonLabel>
+                <IonIcon icon={arrowForward} slot="end" />
+              </IonItem>
+            ))
+          ) : (
+            <IonItem>
+              <IonLabel> No wishlists available </IonLabel>
+            </IonItem>
+          )}
+        </IonList>
 
-
-
-
-
-
-        <IonButton className="button" onClick={() => setShowModal(true)}>
+        <IonButton className="addbutton" onClick={() => setShowModal(true)}>
           Add
         </IonButton>
       </IonContent>
@@ -384,13 +370,15 @@ const [wishlists, setWishlists] = useState<Array<any>>(storedWishlists);
           <IonRow className="ion-align-items-center ion-justify-content-center">
             <IonCol size="12" sizeMd="8">
               <IonItem>
-                <IonLabel position="floating"> Enter Wishlist Name</IonLabel>
+                <IonLabel className="wishlistname" position="floating">
+                  {" "}
+                  Enter Wishlist Name
+                </IonLabel>
                 <IonInput
                   className="Input-field"
                   value={wishlistName}
                   onIonChange={(e) => setWishlistName(e.detail.value!)}
                 />
-               
               </IonItem>
             </IonCol>
           </IonRow>
@@ -467,11 +455,7 @@ const [wishlists, setWishlists] = useState<Array<any>>(storedWishlists);
               </IonCol>
             </IonRow>
             <IonFooter>
-              <IonButton
-                expand="block"
-                color="primary"
-                onClick={handleSaveEvent}
-              >
+              <IonButton expand="block" onClick={handleSaveEvent}>
                 Add Event
               </IonButton>
               <IonButton expand="block" color="medium" onClick={closeModal}>

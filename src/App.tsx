@@ -44,9 +44,10 @@ import GiftSearch from './pages/GiftSearch';
 import SearchInterest from './pages/Tab2';
 import Home from "./pages/Home";
 import FriendsPage from "./pages/FrientdsPage"
+import PersonalDetails from './pages/UserProfile';
 import WishlistDetail from './pages/WishlistDetail';
 import FollowGiftTracker from './pages/followgifttracker';
-import FollowersList from './pages/followers';
+import FollowersList from './pages/followerslist';
 import FollowingList from './pages/followinglist';
 // import GiftList from './pages/giftlist';
 import Giftpost from './pages/giftpost'

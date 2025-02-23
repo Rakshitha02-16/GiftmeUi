@@ -16,3 +16,12 @@ export interface Following {
   profilePhoto: string;
   id: number;
 }
+// export interface Following {
+//   id: number;
+//   followerId: number;
+//   followeeId: number;
+//   followerName: string | null;
+//   followeeName: string | null;
+//   profilePhoto?: string; // Optional profile photo URL
+// }
+

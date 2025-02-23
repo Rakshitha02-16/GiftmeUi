@@ -9,15 +9,15 @@ export interface Address {
   name: { ValueKind: any[] };
 }
 export interface User {
+  uid: string;
   id: number;
   name: string;
   email: string;
-  phone: number;
-  address: Address[];
-  profilePicture: string;
   bio: string;
-  uid: string;
-  role: number;
+  phone: number;
+  address: string[]; // or never[]
+  profilePicture: string;
+  role: string;
 }
 
 export interface Summary {

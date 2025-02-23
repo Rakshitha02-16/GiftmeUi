@@ -15,14 +15,15 @@ import {
   IonActionSheet,
 } from "@ionic/react";
 import { useHistory } from "react-router-dom";
-import { createUser, updateUser, deleteProfilePic, fetchUser } from "../services/ProfileService";
+import { createUser, updateUser, deleteProfilePic, fetchUser } from "../services/UserProfile";
 import { User } from "../Models/User";
-import "../pages/PersonalDetails.css";
+import "../pages/UserProfile.css";
 
 const EditProfile: React.FC = () => {
   const history = useHistory();
 
   const [userData, setUserData] = useState<User>({
+    uid: "", // Unique identifier (can be an empty string initially)
     id: 0,
     name: "",
     email: "",
@@ -30,8 +31,9 @@ const EditProfile: React.FC = () => {
     phone: 0,
     address: [],
     profilePicture: "https://via.placeholder.com/150",
+    role: "", // Role (can be "user", "admin", etc.)
   });
-
+  
   const [showActionSheet, setShowActionSheet] = useState(false);
   const [loading, setLoading] = useState(true);
 

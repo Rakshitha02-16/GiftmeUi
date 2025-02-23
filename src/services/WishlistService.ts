@@ -1,9 +1,8 @@
 import axios from "axios";
 import { Wishlist } from "../Models/Wishlist";
+import { API } from "../services/API"; 
 
-const API_BASE_URL = "https://localhost:7241/api/Wishlist"; // Your backend URL
 
-// ✅ Add Wishlist
 export const addWishlist = async (wishlistName: string, userId: number): Promise<Wishlist> => {
   try {
     const payload = {
@@ -12,11 +11,11 @@ export const addWishlist = async (wishlistName: string, userId: number): Promise
       userId: userId,
     };
     
-    console.log("🔵 Sending Payload:", payload); // ✅ Log the payload before request
+    console.log("🔵 Sending Payload:", payload); 
     
-    const response = await axios.post<Wishlist>("https://localhost:7241/api/Wishlist", payload);
+    const response = await axios.post<Wishlist>(API.wishlist, payload);
 
-    console.log("✅ Wishlist Added Successfully:", response.data); // ✅ Check API response
+    console.log("✅ Wishlist Added Successfully:", response.data); 
     return response.data;
   } catch (error: any) {
     console.error("❌ Error adding wishlist:", error.response?.data || error.message);
@@ -28,8 +27,8 @@ export const addWishlist = async (wishlistName: string, userId: number): Promise
 
 export const getWishlistById = async (wishlistId:number) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/wishlist/${wishlistId}`);
-    return response.data; // Return the wishlist data
+    const response = await axios.get(`${API.wishlist}/wishlist/${wishlistId}`);
+    return response.data;
   } catch (error) {
     console.error("Error fetching wishlist:", error);
     throw new Error("Failed to fetch wishlist");
