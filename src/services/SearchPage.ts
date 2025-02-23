@@ -1,11 +1,16 @@
 import axios from "axios";
+import { API } from "../services/API"; // Import API URLs
 import { User } from "../Models/User";
-import {Gift} from "../Models/Gift";
-const API_BASE_URL = "https://localhost:7241/api/user";
+import { Gift } from "../Models/Gift";
 
-export const searchProfiles = async (keyWord: string, pageNo: number = 0, pageSize: number = 10): Promise<User[]> => {
+// Search user profiles
+export const searchProfiles = async (
+  keyWord: string,
+  pageNo: number = 0,
+  pageSize: number = 10
+): Promise<User[]> => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/search`, {
+    const response = await axios.post(`${API.user}/search`, {
       keyWord,
       pageNo,
       pageSize,
@@ -15,17 +20,14 @@ export const searchProfiles = async (keyWord: string, pageNo: number = 0, pageSi
     console.log("API Response:", response.data);
 
     // Handle empty responses (204 No Content)
-    if (response.status === 204 || !response.data) {
-      console.warn("No profiles found, returning empty array.");
-      return [];
-    }
-
-    return Array.isArray(response.data) ? response.data : [];
+    return response.status === 204 || !response.data ? [] : response.data;
   } catch (error) {
     console.error("Error fetching profiles:", error);
-    return []; // Return empty array on error
+    return [];
   }
 };
+
+// Search gifts with filters
 export const searchGifts = async (filters: {
   gender: string;
   age: number;
@@ -35,7 +37,7 @@ export const searchGifts = async (filters: {
   interests: string[];
 }): Promise<{ results: Gift[] }> => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/giftSearch`, filters);
+    const response = await axios.post(API.gift, filters);
     return response.data;
   } catch (error) {
     console.error("Error fetching gifts:", error);

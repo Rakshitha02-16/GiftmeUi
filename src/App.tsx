@@ -36,10 +36,10 @@ import '@ionic/react/css/display.css';
 
 import './theme/variables.css';
 import AddItems from "./pages/AddItems"
-import PersonalDetails from './pages/PersonalDetails';
+import PersonalDetails from './pages/UserProfile';
 import WishlistDetail from './pages/WishlistDetail';
 import FollowGiftTracker from './pages/followgifttracker';
-import FollowersList from './pages/followers';
+import FollowersList from './pages/followerslist';
 import FollowingList from './pages/followinglist';
 // import GiftList from './pages/giftlist';
 import Giftpost from './pages/giftpost'

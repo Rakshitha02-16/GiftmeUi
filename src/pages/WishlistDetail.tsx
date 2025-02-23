@@ -13,7 +13,7 @@ import {
 } from "@ionic/react";
 import { shareSocialOutline } from "ionicons/icons"; 
 import { getItemsByWishlistId, deleteWishlistItems, deleteWishlistItem } from "../services/WishlistDetails";
-import { Item, Wishlist } from "../Models/Item";
+import { Item } from "../Models/Item";
 import { useParams, useHistory } from "react-router-dom";
 import '../pages/WishlistDetails.css';
 
@@ -27,21 +27,21 @@ const WishlistDetails: React.FC<{ userId: number; wishlistName: string }> = ({ u
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // ✅ Fetch items for the specific wishlistId
+  
   useEffect(() => {
     const fetchItems = async () => {
       try {
         const id = parseInt(wishlistId, 10);
         if (isNaN(id)) return;
   
-        // ✅ Fetch items from API
+       
         const apiItems = await getItemsByWishlistId(id);
   
-        // ✅ Get stored items from Local Storage for the specific wishlist ID
+        
         const storedItems = JSON.parse(localStorage.getItem("wishlistItems") || "[]");
         const filteredStoredItems = storedItems.filter((item: Item) => item.wishListId === id);
   
-        // ✅ Merge API items and local storage items
+        
         const mergedItems = [...filteredStoredItems, ...apiItems];
   
         setItems(mergedItems);
@@ -57,13 +57,13 @@ const WishlistDetails: React.FC<{ userId: number; wishlistName: string }> = ({ u
   
   
 
-  // ✅ Navigate to Add Item page with wishlist details
+
   const handleAddItemClick = () => {
     history.push(`/add-item/${wishlistId}/${wishlistName}`);
   };
-history.push(`/wishlist-detail/${wishlistId}/${encodeURIComponent(wishlistName)}`);
 
-  // ✅ Delete all items in the wishlist
+
+
   const handleDeleteAllItems = async () => {
     if (!window.confirm("Are you sure you want to delete all items?")) return;
 
@@ -78,7 +78,7 @@ history.push(`/wishlist-detail/${wishlistId}/${encodeURIComponent(wishlistName)}
     }
   };
 
-  // ✅ Delete a single item
+ 
   const handleDeleteItem = async (itemId: number) => {
     if (!window.confirm("Are you sure you want to delete this item?")) return;
 
@@ -93,7 +93,7 @@ history.push(`/wishlist-detail/${wishlistId}/${encodeURIComponent(wishlistName)}
     }
   };
 
-  // ✅ Share functionality
+
   const handleShare = async () => {
     try {
       if (navigator.share) {
@@ -128,7 +128,7 @@ history.push(`/wishlist-detail/${wishlistId}/${encodeURIComponent(wishlistName)}
   <div className="wishlist-actions">
   <h5 className="wishlist-title">{wishlistTitle}</h5>
   <div className="wishlist-buttons">
-    <IonButton  color="primary" size="small" onClick={handleAddItemClick}>
+    <IonButton   size="small" onClick={handleAddItemClick}>
       Add Item
     </IonButton>
     {items.length > 0 && (

@@ -1,8 +1,8 @@
 import axios from "axios";
 import { Item } from "../Models/Item";
-
+import { API } from "../services/API";
 const apiClient = axios.create({
-  baseURL: "https://localhost:7241/api/Item", // Adjust to your API base URL
+  baseURL: API.item, // Adjust to your API base URL
   headers: {
     "Content-Type": "application/json",
   },

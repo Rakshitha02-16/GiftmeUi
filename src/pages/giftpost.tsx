@@ -8,11 +8,14 @@ import {
   IonItem,
   IonToast,
   IonImg,
+  IonHeader,
+  IonToolbar,
+  IonTitle
 } from "@ionic/react";
 import { Camera, CameraResultType, CameraSource } from "@capacitor/camera";
 import GooglePlacesAutocomplete from "react-google-places-autocomplete"; // Import Google Places
 import { GiftPost } from "../Models/Gift"; // API Model
-import { postGift } from "../services/giftpostServices"; // API Call
+import { postGift } from "../services/giftServices"; // API Call
 import "../pages/giftpost.css"
 const PostGift: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
@@ -81,14 +84,18 @@ const PostGift: React.FC = () => {
     <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
       <IonContent className="modal-content">
         <div className="modal-inner">
-          <h2 className="modal-title">Create a New Post</h2>
-  
+           <IonHeader>
+                  <IonToolbar>
+                    <IonTitle>CREAT  POST</IonTitle>
+                  </IonToolbar>
+                </IonHeader>
+          
           {/* Image Section */}
           {selectedImage ? (
             <div className="image-preview">
               <IonImg className="post-image" src={selectedImage} />
               <div className="image-actions">
-                <IonButton size="small" onClick={selectImageFromGallery} color="secondary">
+                <IonButton size="small" onClick={selectImageFromGallery} >
                   Change Image
                 </IonButton>
                 <IonButton size="small" onClick={() => setSelectedImage(null)} color="danger">
@@ -105,13 +112,13 @@ const PostGift: React.FC = () => {
           {/* Caption Input */}
           <IonItem className="input-field">
             <IonLabel position="floating">Write a caption...</IonLabel>
-            <IonInput value={caption} onIonChange={(e) => setCaption(e.detail.value!)} />
+            <IonInput className="giftinput" value={caption} onIonChange={(e) => setCaption(e.detail.value!)} />
           </IonItem>
   
           {/* Tags Input */}
           <IonItem className="input-field">
             <IonLabel position="floating">Tag People (comma separated)</IonLabel>
-            <IonInput value={tags} onIonChange={(e) => setTags(e.detail.value!)} />
+            <IonInput  className= "giftinput" value={tags} onIonChange={(e) => setTags(e.detail.value!)} />
           </IonItem>
   
           {/* Location Input (Google Places) */}

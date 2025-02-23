@@ -31,7 +31,7 @@ const AddItems: React.FC = () => {
     photo: "",
     description: "",
     price: 1,
-    wishListId: parseInt(wishlistId, 10) || 1, // Ensure wishListId is correctly set
+    wishListId: parseInt(wishlistId, 10) || 1, 
     source: "web",
     isDeleted: false,
   });
@@ -84,6 +84,7 @@ const AddItems: React.FC = () => {
     if (!formData.name.trim()) return "Item name is required.";
     if (!formData.photo) return "Please upload an image.";
     if (formData.price <= 0) return "Price must be greater than $0.";
+    if (!formData.description.trim()) return "Description is required.";
     return null;
   };
 
@@ -106,7 +107,7 @@ const AddItems: React.FC = () => {
 
       await addItem(payload);
 
-      // Save item to local storage
+      
       const storedItems = JSON.parse(localStorage.getItem("wishlistItems") || "[]");
       localStorage.setItem("wishlistItems", JSON.stringify([...storedItems, payload]));
 
@@ -178,10 +179,8 @@ const AddItems: React.FC = () => {
           {loading ? "Adding..." : "Add Item"}
         </IonButton>
 
-        {/* Cancel Button */}
-        <IonButton expand="full" color="medium" onClick={() => history.goBack()}>
-          Cancel
-        </IonButton>
+        
+       
       </IonContent>
     </IonPage>
   );
