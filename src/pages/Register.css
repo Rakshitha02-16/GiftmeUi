@@ -1,0 +1,55 @@
+.Register{
+    --background:rgb(182, 22, 56);  
+    margin-top:10%;
+    font-size: 120%;
+}
+.bold-title {
+    font-weight: bold;
+}
+.bold-label {
+    font-weight: bold;
+    font-size: small;
+    
+  }
+  .Name{
+    margin-top: 0%;
+    font-size: medium;
+    color: rgb(17, 1, 1);
+  }
+  
+  .PhoneNumber{
+    margin-top: 0%;
+    font-size: medium;
+    color: rgb(17, 1, 1);
+  }
+  .Email{
+    margin-top: 0%;
+    font-size: medium;
+    color: rgb(17, 1, 1);
+  }
+  .ReferalCode{
+    margin-top: 0%;
+    font-size: medium;
+    color: rgb(17, 1, 1);
+  }
+  .ProfilePic{
+    margin-top: 6%;
+    font-size: medium;
+    color: rgb(17, 1, 1);
+    margin-bottom: 7%;
+  }
+  .inputfields{
+    margin-top: 6px;
+    margin-bottom: 6px;
+  }
+  .Bio{
+    margin-top: 0%;
+    font-size: medium;
+    color: rgb(17, 1, 1);
+  }
+  .Address{
+    margin-top: 0%;
+    font-size: medium;
+    color: rgb(17, 1, 1);
+ }
+

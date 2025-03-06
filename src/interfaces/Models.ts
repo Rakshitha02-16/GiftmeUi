@@ -30,5 +30,13 @@ export interface Wishlist {
   userId: number;
   items: string[]; // Array of image URLs
 }
+  export interface LoginResponse {
+    message: string;
+  }
+
+  export interface OTPVerificationResponse {
+    message: string;
+  }
+
 
 
