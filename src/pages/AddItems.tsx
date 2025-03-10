@@ -15,6 +15,7 @@ import {
   IonRange,
   IonSpinner,
   IonLoading,
+  IonText
 } from "@ionic/react";
 import { useHistory, useParams } from "react-router-dom";
 import { addItem } from "../services/AddItemServices";
@@ -81,13 +82,21 @@ const AddItems: React.FC = () => {
   };
 
   const validateForm = () => {
-    if (!formData.name.trim()) return "Item name is required.";
-    if (!formData.photo) return "Please upload an image.";
-    if (formData.price <= 0) return "Price must be greater than $0.";
-    if (!formData.description.trim()) return "Description is required.";
+    if (!formData.name || !formData.name.trim()) {
+      return "Item name is required.";
+    }
+    if (!formData.photo) {
+      return "Please upload an image.";
+    }
+    if (formData.price <= 0) {
+      return "Price must be greater than $0.";
+    }
+    if (!formData.description || !formData.description.trim()) {
+      return "Description is required.";
+    }
     return null;
   };
-
+  
   const handleSubmit = async () => {
     const validationError = validateForm();
     if (validationError) {
@@ -151,14 +160,23 @@ const AddItems: React.FC = () => {
         </IonItem>
 
         <IonItem>
-          <IonLabel position="stacked">Price</IonLabel>
-          <IonRange
-            min={1}
-            max={1000}
-            value={formData.price}
-            onIonChange={(e) => handleInputChange("price", e.detail.value as number)}
-          />
-        </IonItem>
+  <IonLabel>Price</IonLabel>
+  <IonRange
+    min={1}
+    max={1000}
+    pin={true}  // Show selected value as a tooltip
+    value={formData.price}
+    onIonChange={(e) => handleInputChange("price", e.detail.value as number)}
+  >
+    <IonText slot="start" color="primary">
+      $1
+    </IonText>
+    <IonText slot="end" color="primary">
+      $1000
+    </IonText>
+  </IonRange>
+</IonItem>
+
 
         <IonItem>
           <IonLabel position="stacked">Photo</IonLabel>
