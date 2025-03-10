@@ -18,14 +18,29 @@ import { useParams, useHistory } from "react-router-dom";
 import '../pages/WishlistDetails.css';
 
 const WishlistDetails: React.FC<{ userId: number; wishlistName: string }> = ({ userId, wishlistName }) => {
-  const { wishlistId, wishlistName: paramWishlistName } = useParams<{ wishlistId: string; wishlistName: string }>();
-
-  const wishlistTitle = decodeURIComponent(paramWishlistName) || "Unnamed";
   
+
   const history = useHistory();
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+ 
+// Fallback mechanism to ensure wishlistTitle is always assigned
+const { wishlistId, wishlistName: paramWishlistName } = useParams<{ wishlistId: string; wishlistName: string }>();
+
+// Fallback mechanism to ensure wishlistTitle is always assigned
+const storedTitle = localStorage.getItem("wishlistTitle");
+
+const wishlistTitle = paramWishlistName 
+  ? decodeURIComponent(paramWishlistName) 
+  : storedTitle || wishlistName; // Use storedTitle or prop as fallback
+
+useEffect(() => {
+  if (wishlistTitle && wishlistTitle !== "Unnamed") {
+    localStorage.setItem("wishlistTitle", wishlistTitle);
+  }
+}, [wishlistTitle]);
 
   
   useEffect(() => {
@@ -57,10 +72,10 @@ const WishlistDetails: React.FC<{ userId: number; wishlistName: string }> = ({ u
   
   
 
-
   const handleAddItemClick = () => {
-    history.push(`/add-item/${wishlistId}/${wishlistName}`);
+    history.push(`/add-item/${wishlistId}/${encodeURIComponent(wishlistTitle)}`);
   };
+  
 
 
 
