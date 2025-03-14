@@ -37,7 +37,9 @@ import { getUserSummary } from "../services/UserProfile";
 
 import { getWishlistById } from "../services/WishlistService";
 const MyProfile: React.FC<{ userId: number }> = ({ userId }) => {
-  const [date, setDate] = useState<string | undefined>("");
+  const [date, setDate] = useState<string | undefined>(
+    localStorage.getItem("selectedDate") || undefined
+  );
   const [selectedEvent, setSelectedEvent] = useState<string | undefined>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState<string | undefined>("");
@@ -164,7 +166,24 @@ const MyProfile: React.FC<{ userId: number }> = ({ userId }) => {
 
     getEvents();
   }, []);
+  const handleDateChange = (e: CustomEvent) => {
+    let value = e.detail.value;
 
+    if (Array.isArray(value)) {
+      value = value[0]; // Take the first element if it's an array
+    }
+
+    if (value) {
+      setDate(value);
+      localStorage.setItem("selectedDate", value); // Save to local storage
+    }
+  };
+  useEffect(() => {
+    const savedDate = localStorage.getItem("selectedDate");
+    if (savedDate) {
+      setDate(savedDate);
+    }
+  }, []);
   const handleSaveEvent = async () => {
     if (date && selectedEvent) {
       const eventData: Event = {
@@ -331,7 +350,12 @@ const MyProfile: React.FC<{ userId: number }> = ({ userId }) => {
             </div>
           ))}
         </div>
-        <h5 className="wishlist">WISHLIST</h5>
+        <div>
+        <h5 className="title">WISHLIST</h5>
+        <IonButton className="addbutton" onClick={() => setShowModal(true)}>
+          +
+        </IonButton>
+        </div>
         <IonList>
           {wishlists.length > 0 ? (
             wishlists.map((wishlist) => (
@@ -351,9 +375,7 @@ const MyProfile: React.FC<{ userId: number }> = ({ userId }) => {
           )}
         </IonList>
 
-        <IonButton className="addbutton" onClick={() => setShowModal(true)}>
-          Add
-        </IonButton>
+        
       </IonContent>
 
       <IonModal
@@ -415,16 +437,13 @@ const MyProfile: React.FC<{ userId: number }> = ({ userId }) => {
             <IonRow>
               <IonCol>
                 <IonItem>
-                  <IonLabel>Date</IonLabel>
-                  <IonDatetime
-                    presentation="date"
-                    onIonChange={(e) => {
-                      const value = Array.isArray(e.detail.value)
-                        ? e.detail.value[0]
-                        : e.detail.value;
-                      setDate(value as string | undefined);
-                    }}
-                  />
+                <IonLabel>Date</IonLabel>
+                <IonDatetime
+        presentation="date"
+        onIonChange={handleDateChange}
+      />
+
+
                 </IonItem>
               </IonCol>
             </IonRow>
@@ -497,9 +516,9 @@ const MyProfile: React.FC<{ userId: number }> = ({ userId }) => {
                         borderRadius: "5px",
                       }}
                     >
-                      <span style={{ fontSize: "16px", color: "black" }}>
-                        Event Date: {selectedHighlight.description}
-                      </span>
+                     <span style={{ fontSize: "16px", color: "black" }}>
+        Event Date: {date ? new Date(date).toLocaleDateString() : "No date selected"}
+      </span>
                     </div>
                     <div
                       style={{
