@@ -12,7 +12,7 @@
   width: 100%;
 }
 .button{
-  --background: rgb(30, 0, 64);
+  --background: rgba(236, 9, 81, 0.603);
   margin-top: 10%;
   border-radius: 20%;
 }

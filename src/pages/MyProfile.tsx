@@ -237,13 +237,14 @@ const MyProfile: React.FC<{ userId: number }> = ({ userId }) => {
   };
 
   return (
-    <IonPage>
-      <IonHeader>
+    
+    <IonPage  >
+      <IonHeader >
         <IonToolbar>
           <IonTitle>My Profile</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent>
+      <IonContent >
         <IonGrid>
           <IonRow className="ion-align-items-center ion-padding">
             <IonCol size="12" className="ion-text-center">
@@ -356,13 +357,14 @@ const MyProfile: React.FC<{ userId: number }> = ({ userId }) => {
           +
         </IonButton>
         </div>
-        <IonList>
+        <IonList >
           {wishlists.length > 0 ? (
             wishlists.map((wishlist) => (
               <IonItem
                 key={wishlist.id}
                 button
                 onClick={() => handleNavigate(wishlist.id, wishlist.name)}
+                className="home-background"
               >
                 <IonLabel>{wishlist.name}</IonLabel>
                 <IonIcon icon={arrowForward} slot="end" />
@@ -551,6 +553,7 @@ const MyProfile: React.FC<{ userId: number }> = ({ userId }) => {
         />
       )}
     </IonPage>
+  
   );
 };
 

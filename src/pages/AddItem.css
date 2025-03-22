@@ -1,3 +1,5 @@
+/* index.css or App.css */
+
 form {
   display: flex;
   flex-direction: column;
@@ -15,11 +17,11 @@ button {
 }
 .Add-Button{
 margin-top: 20px;
---background: rgb(30, 0, 64);
+--background: rgba(236, 9, 81, 0.603);
 }
 .Label {
   
   font-weight: bold; /* Optional: Emphasize the text */
   
 }
-
+/* index.css or App.css */
