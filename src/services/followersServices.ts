@@ -3,19 +3,6 @@ import { API } from './API'; // Import API from api.ts
 
 import { Follow } from '../Models/Follow';
 
-// Follow a user
-// export const followUser = async (followerId: number, followeeId: number): Promise<Follow> => {
-//   const response = await axios.post(API.follow, { followerId, followeeId });
-//   return response.data;
-// };
-
-// Get following list
-// export const getFollowing = async (userId: number): Promise<Follow[]> => {
-//   const response = await axios.get(`${API.follow}?followeeId=${userId}`);
-//   return response.data;
-// };
-
-// Get user summary
 
 
 // Get followers

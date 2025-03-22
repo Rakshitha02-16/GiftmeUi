@@ -1,9 +1,13 @@
+/* index.css or App.css */
+
+
 .avathar{
   margin-right:"0px"
 }
 
 .addbutton{
-  --background: rgb(30, 0, 64);
+  --background: rgba(236, 9, 81, 0.603);
+  margin-left: 80%;
  
 }
 .input-box {
@@ -21,7 +25,7 @@
 }
 .wishlist{
   
-  text-align: center;
+  display: flex;
 }
 .Input-field{
   margin-top: 10%;
@@ -29,3 +33,12 @@
 .wishlistname{
   text-align: center;
 }
+.title{
+  text-align: center;
+  margin-bottom: -6%;
+}
+.home-background {
+  --background: #dbe8f284; /* Ionic uses CSS variables */
+  
+}
+
