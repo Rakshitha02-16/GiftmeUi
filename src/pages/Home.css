@@ -1,0 +1,50 @@
+/* Home.css */
+.events-container {
+  padding: 16px;
+}
+
+.events-scroll {
+  display: flex;
+  overflow-x: auto;
+  gap: 16px;
+}
+
+.event-circle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.event-avatar {
+  width: 80px;
+  height: 80px;
+  border: 2px solid #3880ff;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.event-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.event-name {
+  margin-top: 8px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.reminder-section {
+  margin-top: 24px;
+}
+
+.closed-event .event-avatar {
+  border-color: #eb445a; /* Red border for closed events */
+}
+
+.event-reminder {
+  color: #eb445a; /* Red text for closed events */
+  font-size: 12px;
+  margin-top: 4px;
+}

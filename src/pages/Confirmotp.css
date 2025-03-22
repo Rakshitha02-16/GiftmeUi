@@ -1,0 +1,16 @@
+.bold-title {
+    font-weight: bold;
+}
+.otp-text{
+    color: #970808;
+}
+.otp-submit-button{
+    --background:rgb(182, 22, 56);
+    margin-top: 6%;
+}
+.Gethelp{
+    --background:rgb(182, 22, 56);
+}
+.Resend{
+    --background:rgb(182, 22, 56);
+}

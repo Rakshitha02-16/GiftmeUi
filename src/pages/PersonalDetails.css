@@ -1,0 +1,13 @@
+.form-item {
+  display: block;
+  margin-bottom: 16px;
+}
+
+.form-item .ion-label {
+  display: block;
+  margin-bottom: 8px; /* Adds spacing between label and input */
+}
+
+.form-item .ion-input, .form-item .ion-textarea {
+  width: 100%;
+}

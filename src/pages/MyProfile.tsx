@@ -1,199 +1,369 @@
-import { IonContent, IonHeader, IonImg, IonItem, IonLabel, IonPage, IonTitle, IonToolbar , IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonButton,IonIcon, IonicSlides, IonModal, IonList, IonItemSliding, IonAvatar} from '@ionic/react';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import {close} from 'ionicons/icons';
+import React, { useState, useEffect } from "react";
+import {
+  IonButton,
+  IonModal,
+  IonContent,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonItem,
+  IonLabel,
+  IonDatetime,
+  IonSelect,
+  IonSelectOption,
+  IonFooter,
+  IonAvatar,
+  IonCardTitle,
+  IonAlert,
+  IonHeader,
+  IonIcon,
+  IonToolbar,
+  IonTitle,
+  IonPage,
+} from "@ionic/react";
+import { addEvent, deleteEvent, fetchEvents } from "../services/ProfileService";
+import { useHistory } from "react-router-dom";
+import { settingsOutline } from "ionicons/icons";
+import "../pages/MyProfile.css";
+import { useLocation } from "react-router-dom";
+import { User } from "../interfaces/Models"; // Adjust the path as needed
 
-import { useHistory } from 'react-router';
-
-
-
-  
-import 'swiper/swiper-bundle.css'
-
-import {powerOutline} from 'ionicons/icons';
-import './Tab3.css';
-import { useCallback, useRef, useState } from 'react';
-
-import { Navigation, Pagination, Scrollbar, A11y  } from 'swiper/modules';
-import { wishlistCategoryData } from './../data/wishlistCategory';
-import Tab2 from './Tab2';
-import WishList from '../components/WishListItem';
-import AddWishList from '../components/AddWishList';
-
-interface WishlistCategoryOject{
-  id: number;
-  wishlistCategoryImg:string;
-  wishlistCategoryTitle: string;
-}
-
-const Tab3: React.FC = () => {
-  // const [interestData,setInterestData] =useState(interests);
-
-  const modal = useRef<HTMLIonModalElement>(null);
-
+const MyProfile = () => {
+  const [date, setDate] = useState<string | undefined>("");
+  const [selectedEvent, setSelectedEvent] = useState<string | undefined>("");
+  const [highlights, setHighlights] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [ wishlistCategory, setWishlistCategory] = useState<WishlistCategoryOject[]>(wishlistCategoryData)
-  const [wishListModal, setWishlistModal] = useState(false);
-
+  const [alertMessage, setAlertMessage] = useState<string | undefined>("");
+  const [showAlert, setShowAlert] = useState(false);
+  const [selectedHighlight, setSelectedHighlight] = useState<any | null>(null);
+  const [events, setEvents] = useState<any[]>([]); // Store events data
+  const [user, setUser] = useState<User | null>(null);
+  const location = useLocation();
   const history = useHistory();
-  const wishlist = useHistory();
+  useEffect(() => {
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+  }, []);
 
-  const navigateToWishList = () => {
-      history.push('/wishList');
-      setWishlistModal(true);
+  const handleEditClick = () => {
+    history.push("/edit-profile"); // Navigate using push
+  };
+  useEffect(() => {
+    const getEvents = async () => {
+      const eventsData = await fetchEvents(); // Fetch events from the API
+      setEvents(eventsData); // Set the fetched events in state
     };
-  
-  const handleOpenModal = () => {
-    setIsModalOpen(true);
-  }
 
-  const handleCloseModal = () => {
+    getEvents(); // Call the function to fetch events
+  }, []);
+
+  const handleSaveEvent = async () => {
+    if (date && selectedEvent) {
+      const eventData: EventData = {
+        title: selectedEvent,
+        userId: 1, // Replace with the actual user ID
+        dateTime: date,
+      };
+
+      try {
+        // Call the addEvent function and pass the correct event data type
+        await addEvent(eventData);
+        setAlertMessage("Event added successfully!");
+        setShowAlert(true);
+        setIsModalOpen(false);
+        setHighlights((prev) => [
+          ...prev,
+          {
+            id: prev.length + 1,
+            image:
+              selectedEvent === "Birthday"
+                ? "https://media.istockphoto.com/id/1154066614/photo/happy-birthday-to-you-concept.webp?a=1&b=1&s=612x612&w=0&k=20&c=T6bCvP_eJaySZul0pNvQrsC1_fZQBABqPH6CucZXuV0="
+                : selectedEvent === "Anniversary"
+                ? "https://omghitched.com/wp-content/uploads/2024/06/image-98.jpeg"
+                : selectedEvent === "Functions"
+                ? "https://www.arin.net/participate/meetings/meetings.jpg"
+                : "https://via.placeholder.com/150",
+            name: selectedEvent,
+            description: `Event on ${new Date(date).toLocaleDateString()}`,
+          },
+        ]);
+      } catch (error) {
+        setAlertMessage("Failed to add event. Please try again.");
+        setShowAlert(true);
+      }
+    } else {
+      setAlertMessage("Please select an event and date.");
+      setShowAlert(true);
+    }
+  };
+
+  const closeModal = () => {
     setIsModalOpen(false);
-  }
+    setSelectedEvent(undefined);
+    setDate(undefined);
+  };
 
-  //  const wishListOpenHandler = () =>{
-  //   setWishlistModal(true);
-  //  }
+  const openHighlightModal = (highlight: any) => {
+    setSelectedHighlight(highlight);
+  };
 
-  const handleFormSubmit = (wishlistCategoryTitle:string, wishlistCategoryImg:string ) =>{
-       const newWishListData = { id: wishlistCategory.length + 1, wishlistCategoryTitle , wishlistCategoryImg}
-       setWishlistCategory([...wishlistCategory,newWishListData])
-  }
-  
-   const wishListCloseHandler = useCallback(() => {
-    
-    wishlist.push('/tab3');
-    // wishlist.goBack();
-    setWishlistModal(false);
-    modal.current?.dismiss();
-    console.log('Hi');
-}, [setWishlistModal, wishlist]);
+  const closeHighlightModal = () => {
+    setSelectedHighlight(null);
+  };
+
+  const handleDelete = async (id: number) => {
+    try {
+      const response = await deleteEvent(id.toString()); // Call deleteEvent from service.js
+      if (response === "Successfully Deleted") {
+        setHighlights((prev) => prev.filter((item) => item.id !== id)); // Remove deleted item from highlights
+        setSelectedHighlight(null); // Clear selected highlight
+        setAlertMessage("Event deleted successfully!"); // Success message
+        setShowAlert(true);
+      }
+    } catch (error) {
+      setAlertMessage("Failed to delete item. Please try again."); // Error message
+      setShowAlert(true);
+    }
+  };
 
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <div style={{display:"flex"}}>
           <IonTitle>My Profile</IonTitle>
-          <IonButton style={{marginRight:"16px"}}><IonIcon slot='icon-only' icon={powerOutline}  style={{ fontSize:"26px"}}></IonIcon></IonButton></div>
+          <IonButton fill="clear" slot="end">
+            <IonIcon icon={settingsOutline} />
+          </IonButton>
         </IonToolbar>
       </IonHeader>
-      <IonContent fullscreen>
-       <IonImg src='data:image/jpeg;base64,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'  alt='User-Profile-Image' style={{width: '100px', height: '70px',marginLeft:"9.9rem",padding:"9px",marginTop:"22px",border:"1px solid black",borderRadius:"90px"}} />
-       <IonItem>
-         <IonLabel style={{ marginLeft:"9.0rem",fontSize:"27px"}}>Sanjana</IonLabel>
-       </IonItem>
-       <IonItem>
-        <IonLabel style={{textAlign:"center",fontSize:"18px",padding:"4px"}}>Lorem ipsum dolor sit amet consectetur adipisicing elit. Exercitationem, excepturi minus. </IonLabel>
-       </IonItem>
-      
-      <IonItem style={{marginTop:"60px"}}>
-        <IonLabel style={{fontSize:"24px"}}>Wishlist</IonLabel>
-        <IonButton onClick={handleOpenModal} >View All</IonButton>
-      </IonItem>
-     <IonModal isOpen={isModalOpen} onDidDismiss={handleCloseModal}>
-     <IonHeader style={{padding:"14px"}}>
-              <span style={{fontSize:"24px",marginLeft:"22px",position:"relative",top:"7px",fontFamily:"sans-serif"}}>View All Wishlist</span>
-             <IonButton onClick={handleCloseModal} style={{position:"relative", left:"9.9em"}} >
-             <IonIcon slot='icon-only' icon={close} style={{fontSize:"28px"}}></IonIcon>
-              </IonButton>
-          </IonHeader>
-             <IonContent style={{position: "relative" ,left:"16px"}} >
-             
-              <IonList inset={true}  className='ionList' style={{padding:"6px",marginLeft:"20px"}} >
-              {wishlistCategory.map((item,index) =>(
-                
-                <IonCard key={index} style={{ marginLeft: "18px", marginBottom: "12px" }} button onClick={navigateToWishList}>
+      <IonContent>
+      <IonGrid>
+  <IonRow className="ion-align-items-center ion-padding">
+    <IonCol size="12" className="ion-text-center">
+      {user ? (
+        <div>
+          {/* Profile Row */}
+          <IonRow className="ion-align-items-center ion-text-center">
+            <IonCol size="3" sizeMd="4">
+              <IonAvatar className="avathar" >
+                <img src={user.profilePicture} alt="Profile" />
+              </IonAvatar>
+            </IonCol>
+           
 
-
-
-                  <IonItem button={true}>
-                    <IonAvatar aria-hidden="true" slot="start" className='ionAvatar'>
-                      <img alt="wishlist image" src={item.wishlistCategoryImg} />
-                    </IonAvatar>
-                    <div className='itemWrapper'>
-                      <IonLabel style={{ fontSize: '26px', marginLeft: "8px" }}>{item.wishlistCategoryTitle}</IonLabel>
-                    </div>
-
-                  </IonItem>
-
-
-
-                </IonCard>
-                
-              ))}
-              
-              </IonList>
-              <AddWishList onFormSubmit={handleFormSubmit} />
-             </IonContent>
-
-     </IonModal>
-         <IonModal isOpen={wishListModal} onDidDismiss={wishListCloseHandler}>
-           <WishList isModalOpen={wishListModal} onCloseHandler={wishListCloseHandler} />
-                    
-          </IonModal>
-          
-          
-          <Swiper 
-        modules={[Navigation, Pagination, Scrollbar, A11y]}
-        navigation
-        pagination={{clickable: true}}  
-        spaceBetween={3} slidesPerView={2} 
-        onSlideChange={()=> console.log('slide change')}
-        onSwiper={(swiper) => console.log(swiper)}
-        style={{padding:"10px",margin:"8px"}}
-       >
-       
-             
-            <SwiperSlide >
-            <IonCard color="light" style={{width:"160px",textAlign:"center"}}  >
-               <IonCardHeader>
-                 <IonCardTitle className='title'>Birthday</IonCardTitle>
-               
-               </IonCardHeader>
-       
-               <IonCardContent>10</IonCardContent>
-             </IonCard></SwiperSlide>
+          {/* Stats Row 1 */}
          
-     
-     
+            <IonCol size="4" sizeMd="4">
+              <h4>340</h4>
+              <p>Followers</p>
+            </IonCol>
+            <IonCol size="4" sizeMd="4">
+              <h4>250</h4>
+              <p>Following</p>
+            </IonCol>
+          </IonRow>
+        
+         
+          {/* Stats Row 2 */}
+          <IonRow className="ion-align-items-center ion-text-center">
+          <IonCol size="3" sizeMd="4" className="margin-left">
+              <p>{user.name}</p>
+              <p>{user.bio}</p>
+            </IonCol>
+            <IonCol size="4" sizeMd="4">
+              <h4>250</h4>
+              <p>Gift Given</p>
+            </IonCol>
+            <IonCol size="4" sizeMd="4">
+              <h4>250</h4>
+              <p>Gift Taken</p>
+            </IonCol>
+           
+          </IonRow>
+         
+        </div>
+      ) : (
+        <p>Loading...</p>
+      )}
+    </IonCol>
+  </IonRow>
+</IonGrid>
 
-      <SwiperSlide>
-      <IonCard color="light" style={{width:"160px",textAlign:"center"}}  >
-     
-        <IonCardHeader>
-          <IonCardTitle>Anniversary</IonCardTitle>
-          
-        </IonCardHeader>
 
-        <IonCardContent>6</IonCardContent>
-      </IonCard></SwiperSlide> 
+        <IonRow>
+          <IonCol size="6" >
+            <IonButton
+              expand="block"
+              color="secondary"
+              onClick={() => setIsModalOpen(true)}
+            >
+              + Event
+            </IonButton>
+          </IonCol>
+          <IonCol size="6">
+            <IonButton
+              expand="block"
+              color="secondary"
+              onClick={handleEditClick}
+            >
+              Edit profile
+            </IonButton>
+          </IonCol>
+        </IonRow>
 
+        <div
+          className="horizontal-scroll-container"
+          style={{ display: "flex", overflowX: "auto", whiteSpace: "nowrap" }}
+        >
+          {highlights.map((highlight) => (
+            <div
+              key={highlight.id}
+              style={{ flexShrink: 0, width: "120px", textAlign: "center" }}
+              onClick={() => openHighlightModal(highlight)}
+            >
+              <IonAvatar className="Avathar">
+                <img src={highlight.image} alt={highlight.name} />
+              </IonAvatar>
+              <IonCardTitle>{highlight.name}</IonCardTitle>
+            </div>
+          ))}
+        </div>
+      </IonContent>
+      <IonModal isOpen={isModalOpen} onDidDismiss={closeModal}>
+        <IonContent>
+          <IonGrid>
+            <IonRow>
+              <IonCol>
+                <h2>Add Event</h2>
+              </IonCol>
+            </IonRow>
+            <IonRow>
+              <IonCol>
+                <IonItem>
+                  <IonLabel>Date</IonLabel>
+                  <IonDatetime
+                    presentation="date"
+                    onIonChange={(e) => {
+                      const value = Array.isArray(e.detail.value)
+                        ? e.detail.value[0]
+                        : e.detail.value;
+                      setDate(value as string | undefined);
+                    }}
+                  />
+                </IonItem>
+              </IonCol>
+            </IonRow>
+            <IonRow>
+              <IonCol>
+              <IonItem>
+  <IonLabel>Event</IonLabel>
+  <IonSelect
+    placeholder="Select an event"
+    value={selectedEvent}
+    onIonChange={(e) => {
+      const eventValue = e.detail.value;
+      setSelectedEvent(eventValue);
 
-      <SwiperSlide>
-      <IonCard color="light" style={{width:"160px",textAlign:"center"}} >
-        <IonCardHeader>
-          <IonCardTitle>Milestone</IonCardTitle>
-          
-        </IonCardHeader>
+      // Do not trigger any backend call here.
+      // Simply update the local state without sending data to the backend.
+      // You can prevent triggering a backend API call here if needed.
+    }}
+  >
+    {events.map((event) => (
+      <IonSelectOption key={event.id} value={event.title}>
+        {event.title}
+      </IonSelectOption>
+    ))}
+  </IonSelect>
+</IonItem>
 
-        <IonCardContent>8</IonCardContent>
-      </IonCard></SwiperSlide>
-      
-      <SwiperSlide>
-      <IonCard color="light" style={{width:"160px",textAlign:"center"}} >
-        <IonCardHeader>
-          <IonCardTitle>Others</IonCardTitle>
-          
-        </IonCardHeader>
+              </IonCol>
+            </IonRow>
+            <IonFooter>
+              <IonButton
+                expand="block"
+                color="primary"
+                onClick={handleSaveEvent}
+              >
+                Add Highlight
+              </IonButton>
+              <IonButton expand="block" color="medium" onClick={closeModal}>
+                Cancel
+              </IonButton>
+            </IonFooter>
+          </IonGrid>
+        </IonContent>
+      </IonModal>
 
-        <IonCardContent>6</IonCardContent>
-      </IonCard></SwiperSlide> 
-     
-      </Swiper>
-      
-    </IonContent>
+      {/* Highlight Display */}
+
+      {/* Selected Highlight Modal */}
+      {selectedHighlight && (
+        <IonModal
+          isOpen={!!selectedHighlight}
+          onDidDismiss={closeHighlightModal}
+        >
+          <IonContent>
+            <IonGrid>
+              <IonRow>
+                <IonCol>
+                  <div
+                    style={{
+                      backgroundImage: `url(${selectedHighlight.image})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      height: "65vh",
+                      position: "relative",
+                    }}
+                  >
+                    <div
+                      style={{
+                        position: "absolute",
+                        bottom: "10px",
+                        left: "10px",
+                        backgroundColor: "rgba(255, 255, 255, 0.8)",
+                        padding: "5px 10px",
+                        borderRadius: "5px",
+                      }}
+                    >
+                      <span style={{ fontSize: "16px", color: "black" }}>
+                        Event Date: {selectedHighlight.description}
+                      </span>
+                    </div>
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: "10px",
+                        right: "10px",
+                      }}
+                    >
+                      <IonButton
+                        onClick={() => handleDelete(selectedHighlight?.id)}
+                      >
+                        Delete
+                      </IonButton>
+                    </div>
+                  </div>
+                </IonCol>
+              </IonRow>
+            </IonGrid>
+          </IonContent>
+        </IonModal>
+      )}
+
+      {/* Alert */}
+      {showAlert && (
+        <IonAlert
+          isOpen={showAlert}
+          onDidDismiss={() => setShowAlert(false)}
+          message={alertMessage}
+          buttons={["OK"]}
+        />
+      )}
     </IonPage>
   );
 };
 
-export default Tab3;
+export default MyProfile;

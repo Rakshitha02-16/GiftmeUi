@@ -10,7 +10,8 @@ import {
   setupIonicReact
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { ellipse, square, triangle, homeOutline,personOutline } from 'ionicons/icons';
+import { homeOutline, personOutline, triangle } from 'ionicons/icons';
+
 import Tab1 from './pages/Home';
 import Tab2 from './pages/Tab2';
 import Tab3 from './pages/MyProfile';
@@ -31,24 +32,21 @@ import '@ionic/react/css/text-transformation.css';
 import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 
-/**
- * Ionic Dark Mode
- * -----------------------------------------------------
- * For more info, please see:
- * https://ionicframework.com/docs/theming/dark-mode
- */
-
-/* import '@ionic/react/css/palettes/dark.always.css'; */
-/* import '@ionic/react/css/palettes/dark.class.css'; */
-import '@ionic/react/css/palettes/dark.system.css';
-
 /* Theme variables */
 import './theme/variables.css';
-import WishList from './components/WishListItem';
-
+import PersonalDetails from './pages/PersonalDetails';
+import Login from './pages/Login';
+import Confirmotp from './pages/Confirmotp';
+import Register from './pages/Register';
+import GiftSearch from './pages/GiftSearch';
+import SearchInterest from './pages/Tab2';
+import Home from "./pages/Home";
+import FriendsPage from "./pages/FrientdsPage"
 setupIonicReact();
+import FollowRequests from './pages/FollowRequest';
 
 const App: React.FC = () => (
+  
   <IonApp>
     <IonReactRouter>
       <IonTabs>
@@ -62,12 +60,25 @@ const App: React.FC = () => (
           <Route path="/tab3">
             <Tab3 />
           </Route>
-          <Route path="/wishList" component={WishList} exact={true} />
+          <Route exact path="/edit-profile">
+            <PersonalDetails />
+          </Route>
+          <Route path="/login" component={Login} exact />
+          <Route path="/ConfirmOTP" component={Confirmotp} exact />
+          <Route path="/register" component={Register} exact />
+          <Route path="/giftsearch" component={GiftSearch} exact />
+          <Route path="/searchpage" component={SearchInterest} exact/>
+           <Route path="/home" component={Home} exact />
+          <Route path="/friends" component={FriendsPage} exact />
+          {/* <Route path="/wishList" component={WishList} exact={true} /> */}
           <Route exact path="/">
             <Redirect to="/tab1" />
           </Route>
+         <Route path="/FollowRequest" component={FollowRequests} exact/>
         </IonRouterOutlet>
-        <IonTabBar slot="bottom">
+
+        {/* Tab Bar */}
+        {/* <IonTabBar slot="bottom">
           <IonTabButton tab="tab1" href="/tab1">
             <IonIcon aria-hidden="true" icon={homeOutline} />
             <IonLabel>Home</IonLabel>
@@ -80,7 +91,7 @@ const App: React.FC = () => (
             <IonIcon aria-hidden="true" icon={personOutline} />
             <IonLabel>My Profile</IonLabel>
           </IonTabButton>
-        </IonTabBar>
+        </IonTabBar> */}
       </IonTabs>
     </IonReactRouter>
   </IonApp>
