@@ -94,7 +94,6 @@ const PostGift: React.FC = () => {
               Select Image from Gallery
             </IonButton>
           )}
-
           {/* Caption Input */}
           <IonItem className="input-field">
             <IonLabel position="floating">Write a caption...</IonLabel>
@@ -132,7 +131,6 @@ const PostGift: React.FC = () => {
               }}
             />
           </IonItem>
-
           {/* Action Buttons */}
           <div className="button-group">
             <IonButton expand="full" className="share-button" onClick={handlePostGift}>
