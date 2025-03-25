@@ -36,14 +36,14 @@ import '@ionic/react/css/display.css';
 
 import './theme/variables.css';
 import AddItems from "./pages/AddItems"
-import PersonalDetails from './pages/PersonalDetails';
+// import PersonalDetails from './pages/PersonalDetails';
 import Login from './pages/Login';
 import Confirmotp from './pages/Confirmotp';
 import Register from './pages/Register';
-import GiftSearch from './pages/GiftSearch';
+import GiftSearch from './pages/GiftSearchPage';
 import SearchInterest from './pages/Tab2';
 import Home from "./pages/Home";
-import FriendsPage from "./pages/FrientdsPage"
+// import FriendsPage from "./pages/FrientdsPage"
 import PersonalDetails from './pages/UserProfile';
 import WishlistDetail from './pages/WishlistDetail';
 import FollowGiftTracker from './pages/followgifttracker';
@@ -56,7 +56,7 @@ import ProfileSearch from './pages/ProfileSearch'
 import SearchPage from './pages/SearchPage';
 import GiftSearchPage from './pages/GiftSearchPage'
 setupIonicReact();
-import FollowRequests from './pages/FollowRequest';
+// import FollowRequests from './pages/FollowRequest';
 
 const App: React.FC = () => (
   
@@ -84,7 +84,7 @@ const App: React.FC = () => (
           <Route path="/giftsearch" component={GiftSearch} exact />
           <Route path="/searchpage" component={SearchInterest} exact/>
            <Route path="/home" component={Home} exact />
-          <Route path="/friends" component={FriendsPage} exact />
+          {/* <Route path="/friends" component={FriendsPage} exact /> */}
           <Route exact path="/add-item">
             <AddItems />
           </Route>
@@ -104,18 +104,15 @@ const App: React.FC = () => (
           <Route exact path="/">
             <Redirect to="/tab1" />
           </Route>
-<<<<<<< HEAD
-         <Route path="/FollowRequest" component={FollowRequests} exact/>
+         {/* <Route path="/FollowRequest" component={FollowRequests} exact/> */}
           <Route path="/wishlist-detail/:wishlistId" component={WishlistDetail} />
           
-=======
          <Route path="/wishlist-detail/:wishlistId/:wishlistName" component={WishlistDetail} />
 
           <Route path="/SearchPage" component={SearchPage} />
           <Route path="/GiftSearch" component={GiftSearchPage} />
           <Route path="/ProfileSearch" component={ProfileSearch} exact />
 
->>>>>>> 91ecd14 ( made changes in wishlist , add item and event and also profile search, gift post  completed)
         </IonRouterOutlet>
 
         {/* Tab Bar */}

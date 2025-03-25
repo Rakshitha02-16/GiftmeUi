@@ -34,3 +34,14 @@ export const getWishlistById = async (wishlistId:number) => {
     throw new Error("Failed to fetch wishlist");
   }
 };;
+
+export const deleteWishlistItem = async (id: number): Promise<boolean> => {
+  try {
+    await axios.delete(`${API.wishlist}/${id}`); // ✅ Fix: Removed incorrect quotes
+    console.log(`✅ Wishlist item with ID ${id} deleted successfully`);
+    return true;
+  } catch (error) {
+    console.error("❌ Error deleting item:", error);
+    return false;
+  }
+};

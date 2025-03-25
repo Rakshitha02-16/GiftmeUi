@@ -167,7 +167,7 @@ const EditProfile: React.FC = () => {
               <IonTextarea
                 value={userData.bio}
                 onIonChange={(e) => setUserData({ ...userData, bio: e.detail.value! })}
-                placeholder="Bio"
+                placeholder="Bio" required
                 className="input-box"
               />
             </IonItem>

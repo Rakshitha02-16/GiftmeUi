@@ -30,12 +30,12 @@ import { User } from "../Models/User";
 import { arrowForward } from "ionicons/icons";
 import { useHistory } from "react-router-dom";
 import { addWishlist } from "../services/WishlistService";
-
+import { trashOutline } from "ionicons/icons";
 import { Event } from "../Models/Event"; // Adjust the path based on your project structure
 
 import { getUserSummary } from "../services/UserProfile";
 
-import { getWishlistById } from "../services/WishlistService";
+import { getWishlistById, deleteWishlistItem} from "../services/WishlistService";
 const MyProfile: React.FC<{ userId: number }> = ({ userId }) => {
   const [date, setDate] = useState<string | undefined>(
     localStorage.getItem("selectedDate") || undefined
@@ -235,6 +235,16 @@ const MyProfile: React.FC<{ userId: number }> = ({ userId }) => {
       setShowAlert(true);
     }
   };
+  const handleDeleteItem = async (id: number) => {
+    console.log("Deleting wishlist item with ID:", id);
+    const success = await deleteWishlistItem(id);
+    console.log("Delete success:", success);
+    if (success) {
+      setWishlists((prevWishlists) => prevWishlists.filter(item => item.id !== id));
+    }
+  };
+  
+
 
   return (
     
@@ -367,7 +377,19 @@ const MyProfile: React.FC<{ userId: number }> = ({ userId }) => {
                 className="home-background"
               >
                 <IonLabel>{wishlist.name}</IonLabel>
-                <IonIcon icon={arrowForward} slot="end" />
+                
+               
+                <IonIcon
+  onClick={(event) => {
+    event.stopPropagation(); // Prevents IonItem click event from triggering
+    handleDeleteItem(wishlist.id);
+  }}
+  icon={trashOutline}
+  slot="end"
+/>
+
+            {/* <IonIcon icon={arrowForward} slot="end" />  */}
+         
               </IonItem>
             ))
           ) : (

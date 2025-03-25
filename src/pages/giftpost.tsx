@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
+  IonPage,
   IonButton,
-  IonModal,
   IonContent,
   IonInput,
   IonLabel,
@@ -13,23 +13,17 @@ import {
   IonTitle
 } from "@ionic/react";
 import { Camera, CameraResultType, CameraSource } from "@capacitor/camera";
-import GooglePlacesAutocomplete from "react-google-places-autocomplete"; // Import Google Places
-import { GiftPost } from "../Models/Gift"; // API Model
-import { postGift } from "../services/giftServices"; // API Call
-import "../pages/giftpost.css"
+import GooglePlacesAutocomplete from "react-google-places-autocomplete";
+import { GiftPost } from "../Models/Gift";
+import { postGift } from "../services/giftServices";
+import "../pages/giftpost.css";
+
 const PostGift: React.FC = () => {
-  const [showModal, setShowModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [caption, setCaption] = useState("");
   const [tags, setTags] = useState("");
   const [location, setLocation] = useState<any>(null);
   const [showToast, setShowToast] = useState(false);
-
-  useEffect(() => {
-    if (showModal) {
-      selectImageFromGallery();
-    }
-  }, [showModal]);
 
   const selectImageFromGallery = async () => {
     try {
@@ -51,10 +45,10 @@ const PostGift: React.FC = () => {
     }
 
     const giftData: GiftPost = {
-      photo: [selectedImage], // Check if backend supports base64
-      tag: tags || "", // Ensure no null values
+      photo: [selectedImage],
+      tag: tags || "",
       caption: caption || "",
-      location: location ? location.label : "", // Send location string
+      location: location ? location.label : "",
     };
 
     try {
@@ -74,28 +68,20 @@ const PostGift: React.FC = () => {
   };
 
   return (
-    <div className="create-post-container">
-    {/* Floating Button for Opening Modal */}
-    <IonButton className="add-post-button" onClick={() => setShowModal(true)}>
-      +
-    </IonButton>
-  
-    {/* Modal Component */}
-    <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
+    <IonPage>
+      <IonHeader>
+        <IonToolbar>
+          <IonTitle>CREATE POST</IonTitle>
+        </IonToolbar>
+      </IonHeader>
       <IonContent className="modal-content">
         <div className="modal-inner">
-           <IonHeader>
-                  <IonToolbar>
-                    <IonTitle>CREAT  POST</IonTitle>
-                  </IonToolbar>
-                </IonHeader>
-          
           {/* Image Section */}
           {selectedImage ? (
             <div className="image-preview">
               <IonImg className="post-image" src={selectedImage} />
               <div className="image-actions">
-                <IonButton size="small" onClick={selectImageFromGallery} >
+                <IonButton size="small" onClick={selectImageFromGallery}>
                   Change Image
                 </IonButton>
                 <IonButton size="small" onClick={() => setSelectedImage(null)} color="danger">
@@ -108,24 +94,24 @@ const PostGift: React.FC = () => {
               Select Image from Gallery
             </IonButton>
           )}
-  
+
           {/* Caption Input */}
           <IonItem className="input-field">
             <IonLabel position="floating">Write a caption...</IonLabel>
             <IonInput className="giftinput" value={caption} onIonChange={(e) => setCaption(e.detail.value!)} />
           </IonItem>
-  
+
           {/* Tags Input */}
           <IonItem className="input-field">
             <IonLabel position="floating">Tag People (comma separated)</IonLabel>
-            <IonInput  className= "giftinput" value={tags} onIonChange={(e) => setTags(e.detail.value!)} />
+            <IonInput className="giftinput" value={tags} onIonChange={(e) => setTags(e.detail.value!)} />
           </IonItem>
-  
+
           {/* Location Input (Google Places) */}
           <IonItem className="input-field">
             <IonLabel>Location</IonLabel>
             <GooglePlacesAutocomplete
-              apiKey="YOUR_GOOGLE_API_KEY"
+              apiKey="Y"
               selectProps={{
                 value: location,
                 onChange: setLocation,
@@ -146,24 +132,19 @@ const PostGift: React.FC = () => {
               }}
             />
           </IonItem>
-  
+
           {/* Action Buttons */}
           <div className="button-group">
             <IonButton expand="full" className="share-button" onClick={handlePostGift}>
               Share
             </IonButton>
-            <IonButton expand="full" className="cancel-button" onClick={() => setShowModal(false)} color="medium">
-              Cancel
-            </IonButton>
           </div>
         </div>
       </IonContent>
-    </IonModal>
-  
-    {/* Success Toast */}
-    <IonToast isOpen={showToast} onDidDismiss={() => setShowToast(false)} message="Gift posted successfully!" duration={2000} />
-  </div>
-  
+
+      {/* Success Toast */}
+      <IonToast isOpen={showToast} onDidDismiss={() => setShowToast(false)} message="Gift posted successfully!" duration={2000} />
+    </IonPage>
   );
 };
 
