@@ -22,6 +22,7 @@ import {
   IonPage,
   IonInput,
   IonList,
+  IonImg
 } from "@ionic/react";
 import { addEvent, deleteEvent, fetchEvents } from "../services/EventServices";
 import "../pages/MyProfile.css";
@@ -32,9 +33,9 @@ import { useHistory } from "react-router-dom";
 import { addWishlist } from "../services/WishlistService";
 import { trashOutline } from "ionicons/icons";
 import { Event } from "../Models/Event"; // Adjust the path based on your project structure
-
+import GiftmeLogo from "../Images/GiftmeLogo.png";
 import { getUserSummary } from "../services/UserProfile";
-
+import { chevronBackOutline } from "ionicons/icons";
 import { getWishlistById, deleteWishlistItem} from "../services/WishlistService";
 const MyProfile: React.FC<{ userId: number }> = ({ userId }) => {
   const [date, setDate] = useState<string | undefined>(
@@ -251,7 +252,19 @@ const MyProfile: React.FC<{ userId: number }> = ({ userId }) => {
     <IonPage  >
       <IonHeader >
         <IonToolbar>
+        <IonIcon 
+          icon={chevronBackOutline} 
+          slot="start" 
+          onClick={() => history.goBack()} 
+          style={{ color: "black" }} 
+        />
+        <IonImg
+            src={GiftmeLogo}
+            style={{ width: "100px", height: "70px", marginLeft: "0px" }}
+            alt="Gift me logo"
+          />
           <IonTitle>My Profile</IonTitle>
+
         </IonToolbar>
       </IonHeader>
       <IonContent >
@@ -410,6 +423,11 @@ const MyProfile: React.FC<{ userId: number }> = ({ userId }) => {
         <IonHeader>
           <IonToolbar>
             <IonTitle>Add Wishlist</IonTitle>
+            <IonImg
+            src={GiftmeLogo}
+            style={{ width: "100px", height: "70px", marginLeft: "0px" }}
+            alt="Gift me logo"
+          />
           </IonToolbar>
         </IonHeader>
         <IonContent className="ion-padding">

@@ -11,11 +11,13 @@ import {
   IonRow,
   IonCol,
   IonImg,
+  IonTitle,
+  IonIcon,
 } from "@ionic/react";
 import ProfileSearch from "../pages/ProfileSearch"; // Profile Search Component
 import GiftSearchPage from "../pages/GiftSearchPage"; // Gift Search Component
 import GiftmeLogo from "../Images/GiftmeLogo.png";
-
+import { chevronBackOutline } from "ionicons/icons";
 const SearchTabs: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState<"gift" | "profiles">(
     "profiles"
@@ -34,11 +36,19 @@ const SearchTabs: React.FC = () => {
       {/* Header Section */}
       <IonHeader>
         <IonToolbar>
-          <IonImg
+        <IonIcon 
+  icon={chevronBackOutline} 
+  slot="start" 
+  onClick={() => history.back()} 
+  style={{ color: "black" }} 
+/>
+
+        <IonImg
             src={GiftmeLogo}
-            style={{ width: "100px", height: "70px", marginLeft: "150px" }}
+            style={{ width: "100px", height: "70px", marginLeft: "0px" }}
             alt="Gift me logo"
           />
+          <IonTitle>Search</IonTitle>
         </IonToolbar>
       </IonHeader>
 

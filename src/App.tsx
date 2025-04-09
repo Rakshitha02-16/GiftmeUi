@@ -54,7 +54,9 @@ import Giftpost from './pages/giftpost'
 // import WishList from './pages/wishlist';
 import ProfileSearch from './pages/ProfileSearch'
 import SearchPage from './pages/SearchPage';
-import GiftSearchPage from './pages/GiftSearchPage'
+import GiftSearchPage from './pages/GiftSearchPage';
+import CommentsPage from './pages/CommentsPage';
+import Getgift from './pages/Getgift';
 setupIonicReact();
 // import FollowRequests from './pages/FollowRequest';
 
@@ -83,6 +85,9 @@ const App: React.FC = () => (
           <Route path="/register" component={Register} exact />
           <Route path="/giftsearch" component={GiftSearch} exact />
           <Route path="/searchpage" component={SearchInterest} exact/>
+          <Route path="/getgift" component={Getgift} exact/>
+          <Route path="/comments/:giftId" component={CommentsPage} exact />
+
            <Route path="/home" component={Home} exact />
           {/* <Route path="/friends" component={FriendsPage} exact /> */}
           <Route exact path="/add-item">

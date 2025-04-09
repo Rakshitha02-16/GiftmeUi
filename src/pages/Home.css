@@ -48,3 +48,8 @@
   font-size: 12px;
   margin-top: 4px;
 }
+.no-bg {
+  background-color: transparent !important;
+  --background: transparent !important;
+  --ion-color-base: transparent !important;
+}

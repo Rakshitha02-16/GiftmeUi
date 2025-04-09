@@ -10,19 +10,22 @@ import {
   IonImg,
   IonHeader,
   IonToolbar,
-  IonTitle
+  IonTitle,
+  IonIcon
+  
 } from "@ionic/react";
 import { Camera, CameraResultType, CameraSource } from "@capacitor/camera";
-import GooglePlacesAutocomplete from "react-google-places-autocomplete";
 import { GiftPost } from "../Models/Gift";
-import { postGift } from "../services/giftServices";
+import { useHistory } from "react-router-dom";
+import { chevronBackOutline } from "ionicons/icons";
+import GiftmeLogo from "../Images/GiftmeLogo.png";
 import "../pages/giftpost.css";
 
 const PostGift: React.FC = () => {
+  const history = useHistory();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [caption, setCaption] = useState("");
   const [tags, setTags] = useState("");
-  const [location, setLocation] = useState<any>(null);
   const [showToast, setShowToast] = useState(false);
 
   const selectImageFromGallery = async () => {
@@ -44,17 +47,22 @@ const PostGift: React.FC = () => {
       return;
     }
 
-    const giftData: GiftPost = {
+    const newGiftPost: GiftPost = {
       photo: [selectedImage],
       tag: tags || "",
       caption: caption || "",
-      location: location ? location.label : "",
     };
 
     try {
-      await postGift(giftData);
+      const existingPosts = JSON.parse(localStorage.getItem("giftPosts") || "[]");
+      const updatedPosts = [newGiftPost, ...existingPosts];
+      localStorage.setItem("giftPosts", JSON.stringify(updatedPosts));
+
       setShowToast(true);
       clearForm();
+      setTimeout(() => {
+        history.push("/home");
+      }, 2000);
     } catch (error) {
       console.error("Failed to post gift:", error);
     }
@@ -64,19 +72,28 @@ const PostGift: React.FC = () => {
     setSelectedImage(null);
     setCaption("");
     setTags("");
-    setLocation(null);
   };
 
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
+        <IonIcon 
+          icon={chevronBackOutline} 
+          slot="start" 
+          onClick={() => history.goBack()} 
+          style={{ color: "black" }} 
+        />
+        <IonImg
+            src={GiftmeLogo}
+            style={{ width: "100px", height: "70px", marginLeft: "0px" }}
+            alt="Gift me logo"
+          />
           <IonTitle>CREATE POST</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="modal-content">
         <div className="modal-inner">
-          {/* Image Section */}
           {selectedImage ? (
             <div className="image-preview">
               <IonImg className="post-image" src={selectedImage} />
@@ -94,44 +111,17 @@ const PostGift: React.FC = () => {
               Select Image from Gallery
             </IonButton>
           )}
-          {/* Caption Input */}
+
           <IonItem className="input-field">
             <IonLabel position="floating">Write a caption...</IonLabel>
             <IonInput className="giftinput" value={caption} onIonChange={(e) => setCaption(e.detail.value!)} />
           </IonItem>
 
-          {/* Tags Input */}
           <IonItem className="input-field">
             <IonLabel position="floating">Tag People (comma separated)</IonLabel>
             <IonInput className="giftinput" value={tags} onIonChange={(e) => setTags(e.detail.value!)} />
           </IonItem>
 
-          {/* Location Input (Google Places) */}
-          <IonItem className="input-field">
-            <IonLabel>Location</IonLabel>
-            <GooglePlacesAutocomplete
-              apiKey="Y"
-              selectProps={{
-                value: location,
-                onChange: setLocation,
-                placeholder: "Search for a location...",
-                isClearable: true,
-                noOptionsMessage: () => "No suggestions found",
-                styles: {
-                  control: (provided) => ({
-                    ...provided,
-                    minHeight: "40px",
-                    width: "100%",
-                  }),
-                  menu: (provided) => ({
-                    ...provided,
-                    zIndex: 9999,
-                  }),
-                },
-              }}
-            />
-          </IonItem>
-          {/* Action Buttons */}
           <div className="button-group">
             <IonButton expand="full" className="share-button" onClick={handlePostGift}>
               Share
@@ -140,7 +130,6 @@ const PostGift: React.FC = () => {
         </div>
       </IonContent>
 
-      {/* Success Toast */}
       <IonToast isOpen={showToast} onDidDismiss={() => setShowToast(false)} message="Gift posted successfully!" duration={2000} />
     </IonPage>
   );

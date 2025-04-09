@@ -23,3 +23,13 @@ export interface Gift {
   sex: string;
   category?: string; 
 }
+export interface GiftPosts {
+  id: number;
+  photo: string[];
+  tag: string;
+  caption: string;
+  user: {
+    name: string;
+    profilePic: string;
+  }
+}
