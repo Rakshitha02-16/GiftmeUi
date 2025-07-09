@@ -22,7 +22,8 @@ import {
   IonPage,
   IonInput,
   IonList,
-  IonImg
+  IonImg,
+  IonRouterLink
 } from "@ionic/react";
 import { addEvent, deleteEvent, fetchEvents } from "../services/EventServices";
 import "../pages/MyProfile.css";
@@ -312,21 +313,21 @@ const MyProfile: React.FC<{ userId: number }> = ({ userId }) => {
                     <IonCol size="4" sizeMd="4">
                       <h4>{summary.giftGiven} </h4>
                       <a
-                        href="/gifts-given"
+                        href="/Giftgiven"
                         style={{ textDecoration: "none", color: "inherit" }}
                       >
                         Gift given
                       </a>
                     </IonCol>
                     <IonCol size="4" sizeMd="4">
-                      <h4>{summary.giftReceived}</h4>
-                      <a
-                        href="/gifts-taken"
-                        style={{ textDecoration: "none", color: "inherit" }}
-                      >
-                        Gift taken
-                      </a>
-                    </IonCol>
+  <h4>{summary.giftReceived}</h4>
+  <IonRouterLink
+    routerLink="/giftTaken"
+    style={{ textDecoration: "none", color: "inherit" }}
+  >
+    Gift taken
+  </IonRouterLink>
+</IonCol>
                   </IonRow>
                 </div>
               ) : (

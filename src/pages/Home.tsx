@@ -14,45 +14,52 @@ import {
   IonImg,
   IonItem,
   IonButton,
-  IonInput,IonAvatar
+  IonInput,
+  IonAvatar,
 } from "@ionic/react";
-import { home, people, add, search, person, chatbubbleOutline, heartOutline, shareSocialOutline } from "ionicons/icons";
+import {
+  home,
+  people,
+  add,
+  search,
+  person,
+  chatbubbleOutline,
+  heartOutline,
+  shareSocialOutline,
+  heart,
+} from "ionicons/icons";
 import { GiftPosts } from "../Models/Gift";
 import { fetchGiftsFromAPI } from "../services/giftServices";
-import { commentsService } from "../services/CommentServices"; // ✅ this is used for posting comments
-import { feedactions} from "../services/FeedActions"; // ✅ renamed to avoid name conflict // ✅ this is used for like/share counts etc.
+import { getLikesByUser, postLike } from "../services/LikeServices";
+import GiftmeLogo from "../Images/GiftmeLogo.png";
 
-const HomePage: React.FC = () => {
+// ✅ Define the props type
+interface LikeButtonProps {
+  userId: number;
+}
+
+const HomePage: React.FC<LikeButtonProps> = ({ userId }) => {
+  const [likedPosts, setLikedPosts] = useState<number[]>([]);
+  const [likes, setLikes] = useState<Record<number, number>>({});
   const [posts, setPosts] = useState<GiftPosts[]>([]);
-  const [likes, setLikes] = useState<{ [key: number]: number }>({});
-  const [comments, setComments] = useState<{ [key: number]: number }>({});
-  const [shares, setShares] = useState<{ [key: number]: number }>({});
-  const [commentInput, setCommentInput] = useState<{ [key: number]: string }>({});
-  const [commentCounts, setCommentCounts] = useState<{ [key: number]: number }>({});
-
   const [user, setUser] = useState<{ name: string; profilePicture: string }>({
     name: "",
     profilePicture: "https://via.placeholder.com/150",
   });
-  
+
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
     if (storedUser.name && storedUser.profilePicture) {
       setUser(storedUser);
     }
   }, []);
+
   useEffect(() => {
     const fetchGifts = async () => {
       try {
-        // Fetch from API
         const apiGifts = await fetchGiftsFromAPI();
-
-        // Fetch from local storage
         const storedGifts = JSON.parse(localStorage.getItem("giftPosts") || "[]");
-
-        // Merge API and local storage gifts
         const combinedGifts = [...storedGifts, ...apiGifts];
-
         setPosts(combinedGifts);
       } catch (error) {
         console.error("Error fetching gifts:", error);
@@ -61,59 +68,48 @@ const HomePage: React.FC = () => {
 
     fetchGifts();
   }, []);
-  const fetchCounts = async (giftId: number) => {
+
+  useEffect(() => {
+    const fetchLikes = async () => {
+      try {
+        const userLikes = await getLikesByUser(userId);
+        setLikedPosts(userLikes);
+      } catch (error) {
+        console.error("Error fetching likes:", error);
+      }
+    };
+    fetchLikes();
+  }, [userId]);
+
+  const handleLike = async (postId: number) => {
     try {
-      const likeCount = await feedactions.getLikeCount(giftId);
-      const commentCount = await feedactions.getCommentCount(giftId);
-      const shareCount = await feedactions.getShareCount(giftId);
-
-      setLikes((prev) => ({ ...prev, [giftId]: likeCount }));
-      setCommentCounts((prev) => ({ ...prev, [giftId]: commentCount }));
-      setShares((prev) => ({ ...prev, [giftId]: shareCount }));
+      const result = await postLike(postId, userId);
+      if (result === true) {
+        setLikedPosts((prev) => [...prev, postId]);
+        setLikes((prev) => ({
+          ...prev,
+          [postId]: (prev[postId] || 0) + 1,
+        }));
+      }
     } catch (error) {
-      console.error("Error fetching counts:", error);
+      console.error("Error liking post:", error);
     }
-  };
-
-  const handleLike = async (giftId: number) => {
-    await feedactions.likeGift(giftId);
-    fetchCounts(giftId);
-  };
-  const handleComment = async (giftId: number) => {
-    if (commentInput[giftId]) {
-      const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-      const userId = storedUser.id || 1;
-      const profilePic = storedUser.profilePicture || null;
-
-      await commentsService.postComment(
-        giftId,
-        commentInput[giftId],
-        userId,
-        profilePic
-      );
-      fetchCounts(giftId);
-      setCommentInput((prev) => ({ ...prev, [giftId]: "" }));
-    }
-  };
-
-  const handleShare = async (giftId: number) => {
-    await feedactions.shareGift(giftId);
-    fetchCounts(giftId);
   };
 
   return (
     <IonPage>
       <IonHeader>
-       
-
         <IonTabBar slot="top">
+          <IonTabButton tab="logo" href="/home">
+            <IonImg
+              src={GiftmeLogo}
+              style={{ width: "100px", height: "70px", marginLeft: "0px" }}
+              alt="Gift me logo"
+            />
+          </IonTabButton>
           <IonTabButton tab="home" href="/home">
             <IonIcon icon={home} />
             <IonLabel>Home</IonLabel>
-          </IonTabButton>
-          <IonTabButton tab="friends" href="/friends">
-            <IonIcon icon={people} />
-            <IonLabel>Friends</IonLabel>
           </IonTabButton>
           <IonTabButton tab="gift" href="/giftpost">
             <IonIcon icon={add} />
@@ -132,57 +128,51 @@ const HomePage: React.FC = () => {
 
       <IonContent>
         {posts.length > 0 ? (
-          posts.map((post) => (
-            <IonCard key={post.id} className="gift-card">
-              {/* User Info */}
-              <IonItem>
-  <IonAvatar slot="start">
-    <IonImg src={user.profilePicture} className="profile-pic" />
-  </IonAvatar>
-  <IonLabel>{user.name}</IonLabel>
-</IonItem>
+          posts.map((post) => {
+            const isLiked = likedPosts.includes(post.id);
+            return (
+              <IonCard key={post.id} className="gift-card">
+                <IonItem>
+                  <IonAvatar slot="start">
+                    <IonImg src={user.profilePicture} className="profile-pic" />
+                  </IonAvatar>
+                  <IonLabel>{user.name}</IonLabel>
+                </IonItem>
 
-              {/* Gift Image */}
-              {post.photo.length > 0 ? <IonImg src={post.photo[0]} className="gift-image" /> : <p>No Image Available</p>}
+                {post.photo.length > 0 ? (
+                  <IonImg src={post.photo[0]} className="gift-image" />
+                ) : (
+                  <p>No Image Available</p>
+                )}
 
-              {/* Caption */}
-              <IonCardContent>
-                <p><strong>Caption:</strong> {post.caption}</p>
-                <p><strong>Tags:</strong> {post.tag}</p>
-              </IonCardContent>
+                <IonCardContent>
+                  <p>
+                    <strong>Caption:</strong> {post.caption}
+                  </p>
+                  <p>
+                    <strong>Tags:</strong> {post.tag}
+                  </p>
+                </IonCardContent>
 
-              {/* Action Buttons */}
-              <div className="action-buttons">
-                <IonButton className="no-bg" fill="clear" onClick={() => handleLike(post.id)}>
-                  <IonIcon icon={heartOutline} color="danger" />
-                  {likes[post.id] || 0}
-                </IonButton>
+                <div className="action-buttons">
+                  <IonButton className="no-bg" fill="clear" onClick={() => handleLike(post.id)}>
+                    <IonIcon icon={isLiked ? heart : heartOutline} color="danger" />
+                    <span style={{ marginLeft: "5px" }}>{likes[post.id] || 0}</span>
+                  </IonButton>
 
-                <IonButton className="no-bg" fill="clear" routerLink={`/comments/${post.id}`}>
-                  <IonIcon icon={chatbubbleOutline} />
-                  {comments[post.id] || 0}
-                </IonButton>
+                  <IonButton className="no-bg" fill="clear">
+                    <IonIcon icon={chatbubbleOutline} />
+                  </IonButton>
 
-                <IonButton className="no-bg" fill="clear" onClick={() => handleShare(post.id)}>
-                  <IonIcon icon={shareSocialOutline} />
-                  {shares[post.id] || 0}
-                </IonButton>
-              </div>
+                  <IonButton className="no-bg" fill="clear">
+                    <IonIcon icon={shareSocialOutline} />
+                  </IonButton>
+                </div>
 
-              {/* Comment Input */}
-              <IonItem>
-                <IonInput
-                  value={commentInput[post.id] || ""}
-                  placeholder="Write a comment..."
-                  onIonChange={(e) =>
-                    setCommentInput((prev) => ({ ...prev, [post.id]: e.detail.value! }))
-                  }
-                />
-                <IonButton fill="clear" onClick={() => handleComment(post.id)}>Post</IonButton>
-
-              </IonItem>
-            </IonCard>
-          ))
+                <IonItem>{/* Comment input area is currently commented out */}</IonItem>
+              </IonCard>
+            );
+          })
         ) : (
           <p>No gifts available.</p>
         )}

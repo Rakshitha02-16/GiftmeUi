@@ -57,6 +57,7 @@ export const feedactions = {
   getShareCount: async (giftId: number): Promise<number> => {
     try {
       const response = await axios.get(`${API.Share}/count/${giftId}`);
+      
       return response.data;
     } catch (error) {
       console.error("Error fetching share count:", error);

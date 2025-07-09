@@ -33,3 +33,27 @@ export interface GiftPosts {
     profilePic: string;
   }
 }
+// src/interfaces/GiftInterface.ts
+
+export interface GiftGiven {
+  id: number;
+  itemId: number;
+  itemName: string | null;
+  photo: string[]; // assuming it's an array of image URLs
+  fulFilledById: number;
+  fulFilledByName: string | null;
+  tag: string;
+  caption: string;
+}
+// src/interfaces/GiftTakenInterface.ts
+
+export interface GiftTaken {
+  id: number;
+  itemId: number;
+  itemName: string | null;
+  photo: string[];
+  fulFilledById: number;
+  fulFilledByName: string | null;
+  tag: string;
+  caption: string;
+}

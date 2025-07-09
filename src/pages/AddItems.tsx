@@ -31,7 +31,7 @@ const AddItems: React.FC = () => {
     name: "",
     photo: "",
     description: "",
-    price: 1,
+    price: 0,
     wishListId: parseInt(wishlistId, 10) || 1, 
     source: "web",
     isDeleted: false,

@@ -57,6 +57,9 @@ import SearchPage from './pages/SearchPage';
 import GiftSearchPage from './pages/GiftSearchPage';
 import CommentsPage from './pages/CommentsPage';
 import Getgift from './pages/Getgift';
+import GiftDetails from './pages/Giftgiven';
+import Practice from './pages/Practice';
+import GiftTakenDetails from './pages/GiftTakenDetails';
 setupIonicReact();
 // import FollowRequests from './pages/FollowRequest';
 
@@ -87,7 +90,7 @@ const App: React.FC = () => (
           <Route path="/searchpage" component={SearchInterest} exact/>
           <Route path="/getgift" component={Getgift} exact/>
           <Route path="/comments/:giftId" component={CommentsPage} exact />
-
+          <Route path="/practice" component={Practice} exact />
            <Route path="/home" component={Home} exact />
           {/* <Route path="/friends" component={FriendsPage} exact /> */}
           <Route exact path="/add-item">
@@ -117,7 +120,8 @@ const App: React.FC = () => (
           <Route path="/SearchPage" component={SearchPage} />
           <Route path="/GiftSearch" component={GiftSearchPage} />
           <Route path="/ProfileSearch" component={ProfileSearch} exact />
-
+          <Route path="/Giftgiven" component={GiftDetails} exact />
+          <Route path="/giftTaken" component={GiftTakenDetails}  exact/>
         </IonRouterOutlet>
 
         {/* Tab Bar */}
